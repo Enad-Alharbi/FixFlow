@@ -1,0 +1,32 @@
+<ng-container *transloco="let t">
+  <a class="skip-link" href="#main" (click)="skipToMain($event)">{{ t('shell.skipToContent') }}</a>
+
+  <header class="bar">
+    <div class="bar-inner">
+      <a class="brand" [routerLink]="home()">{{ t('app.name') }}</a>
+
+      @if (plane() === 'platform') {
+        <span class="plane-tag">{{ t('shell.platform') }}</span>
+      }
+
+      <nav class="nav" [attr.aria-label]="t('shell.mainNav')">
+        @for (item of nav(); track item.path) {
+          <a
+            class="nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >{{ t(item.labelKey) }}</a
+          >
+        }
+      </nav>
+
+      <app-language-switcher class="bar-end" />
+    </div>
+  </header>
+
+  <main id="main" #main tabindex="-1">
+    <router-outlet />
+  </main>
+</ng-container>

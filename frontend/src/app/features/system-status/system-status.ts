@@ -9,10 +9,8 @@ import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
   imports: [TranslocoDirective, LocalDatePipe],
   templateUrl: './system-status.html',
   styles: `
-    main {
+    section {
       max-inline-size: 40rem;
-      margin-inline: auto;
-      padding: var(--space-6) var(--space-4);
       display: grid;
       gap: var(--space-4);
     }

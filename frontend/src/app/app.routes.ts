@@ -1,12 +1,20 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { provideTranslocoScope } from '@jsverse/transloco';
 
+// Feature strings live in public/i18n/system-status/ and load with this route (alias: systemStatus).
+const systemStatus: Route = {
+  path: '',
+  providers: [provideTranslocoScope('system-status')],
+  loadComponent: () => import('./features/system-status/system-status').then((m) => m.SystemStatus),
+};
+
+const shell = () => import('./layouts/shell/shell').then((m) => m.Shell);
+
+// Guards (signed in, PlatformAdmin vs tenant role) are added in Phase 3; the API enforces access regardless.
 export const routes: Routes = [
-  {
-    path: '',
-    // Feature strings live in public/i18n/system-status/ and load with this route (alias: systemStatus).
-    providers: [provideTranslocoScope('system-status')],
-    loadComponent: () =>
-      import('./features/system-status/system-status').then((m) => m.SystemStatus),
-  },
+  // Control Panel: its own lazy area under /platform (CLAUDE.md §10).
+  { path: 'platform', loadComponent: shell, data: { plane: 'platform' }, children: [systemStatus] },
+  // Tenant app.
+  { path: '', loadComponent: shell, data: { plane: 'tenant' }, children: [systemStatus] },
+  { path: '**', redirectTo: '' },
 ];

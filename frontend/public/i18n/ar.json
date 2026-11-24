@@ -7,5 +7,13 @@
       "en": "English",
       "ar": "العربية"
     }
+  },
+  "shell": {
+    "skipToContent": "الانتقال إلى المحتوى",
+    "mainNav": "الرئيسية",
+    "platform": "المنصة"
+  },
+  "nav": {
+    "systemStatus": "حالة النظام"
   }
 }

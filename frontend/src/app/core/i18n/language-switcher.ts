@@ -24,6 +24,7 @@ import { LanguageService } from './language.service';
       border: var(--border-width) solid var(--color-border);
       border-radius: var(--radius-md);
       background: var(--color-surface);
+      color: var(--color-text); /* its own colour: it sits on light and dark bars */
       font-family: var(--font-display);
       font-weight: var(--fw-semibold);
       cursor: pointer;

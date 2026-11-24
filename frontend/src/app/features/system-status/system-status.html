@@ -1,4 +1,4 @@
-<main *transloco="let t; prefix: 'systemStatus'">
+<section *transloco="let t; prefix: 'systemStatus'">
   <h1>{{ t('title') }}</h1>
 
   <p role="status">
@@ -22,4 +22,4 @@
   <button type="button" (click)="health.reload()" [disabled]="health.isLoading()">
     {{ t('checkAgain') }}
   </button>
-</main>
+</section>

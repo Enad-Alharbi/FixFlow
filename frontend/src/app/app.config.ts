@@ -5,7 +5,7 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { routes } from './app.routes';
 import { LanguageService } from './core/i18n/language.service';
@@ -15,7 +15,8 @@ import { FIXFLOW_TRANSLOCO_CONFIG } from './core/i18n/transloco.config';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    // withComponentInputBinding: route data (e.g. the shell's `plane`) arrives as component inputs.
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch()),
     provideTransloco({ config: FIXFLOW_TRANSLOCO_CONFIG, loader: TranslocoHttpLoader }),
     // Choose the language and load its strings before the first render, so keys never flash on screen.
