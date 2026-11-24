@@ -1,0 +1,6 @@
+<Project>
+  <!-- Applies to every project under backend/. Warnings fail the build so nullable issues are fixed, not ignored. -->
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

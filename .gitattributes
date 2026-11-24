@@ -1,0 +1,2 @@
+# Store and check out text files with LF, so scripts and config copied into Linux containers never break on CRLF.
+* text=auto eol=lf

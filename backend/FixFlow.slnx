@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FixFlow.Api.Tests/FixFlow.Api.Tests.csproj" />
+  <Project Path="FixFlow.Api/FixFlow.Api.csproj" />
+</Solution>

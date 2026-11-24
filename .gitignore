@@ -1,0 +1,11 @@
+*.md
+
+# Secrets: the real .env is never committed (.env.example is)
+.env
+
+# .NET build output and IDE state
+bin/
+obj/
+.vs/
+*.user
+TestResults/
