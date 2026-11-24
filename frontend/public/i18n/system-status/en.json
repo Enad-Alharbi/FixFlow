@@ -1,0 +1,9 @@
+{
+  "title": "System status",
+  "checking": "Checking the API…",
+  "healthy": "API and database: healthy",
+  "notReady": "The API answered but isn't ready (HTTP {{ status }}).",
+  "unreachable": "The API can't be reached.",
+  "checkedAt": "Last checked {{ time }}",
+  "checkAgain": "Check again"
+}

@@ -1,21 +1,25 @@
-<main>
-  <h1>FixFlow — system status</h1>
+<main *transloco="let t; prefix: 'systemStatus'">
+  <h1>{{ t('title') }}</h1>
 
   <p role="status">
     @if (health.isLoading()) {
-      Checking the API…
+      {{ t('checking') }}
     } @else if (health.error()) {
       @if (errorStatus(); as status) {
-        API answered but is not ready (HTTP {{ status }}).
+        {{ t('notReady', { status }) }}
       } @else {
-        API is unreachable.
+        {{ t('unreachable') }}
       }
     } @else {
-      API and database: {{ health.value() }}
+      {{ t('healthy') }}
     }
   </p>
 
+  @if (checkedAt(); as time) {
+    <p class="checked">{{ t('checkedAt', { time: (time | localDate: 'time') }) }}</p>
+  }
+
   <button type="button" (click)="health.reload()" [disabled]="health.isLoading()">
-    Check again
+    {{ t('checkAgain') }}
   </button>
 </main>

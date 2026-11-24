@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run i18n:check",
     "test": "ng test",
+    "i18n:check": "node scripts/check-i18n.mjs",
+    "test:scripts": "node --test \"scripts/*.test.mjs\"",
     "lint": "ng lint",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "format": "prettier --write .",
@@ -15,6 +18,7 @@
   "private": true,
   "packageManager": "npm@11.19.0",
   "dependencies": {
+    "@angular/cdk": "22.3.0",
     "@angular/common": "^22.3.0",
     "@angular/compiler": "^22.3.0",
     "@angular/core": "^22.3.0",
@@ -24,6 +28,7 @@
     "@fontsource/barlow": "5.3.0",
     "@fontsource/barlow-semi-condensed": "5.3.0",
     "@fontsource/noto-kufi-arabic": "5.3.0",
+    "@jsverse/transloco": "8.4.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

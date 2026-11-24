@@ -74,6 +74,8 @@
   --font-display: 'Barlow Semi Condensed', sans-serif;
   --font-body: 'Barlow', sans-serif;
   --font-numeric: 'Barlow', sans-serif; // IDs, times, phone numbers: always Western digits
+  // For text that is Arabic whatever the page language (e.g. the "العربية" switch label).
+  --font-arabic: 'Noto Kufi Arabic', 'Barlow', sans-serif;
   --fs-xs: calc(0.75rem * var(--font-scale));
   --fs-sm: calc(0.875rem * var(--font-scale));
   --fs-md: calc(1rem * var(--font-scale));
