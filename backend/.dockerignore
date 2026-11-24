@@ -1,0 +1,6 @@
+# Keep the build context small and never send Windows build output into a Linux image.
+**/bin/
+**/obj/
+.vs/
+**/*.user
+FixFlow.Api.Tests/

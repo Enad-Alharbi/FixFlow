@@ -1,0 +1,6 @@
+# Windows node_modules contains Windows-only native binaries; the image installs its own.
+node_modules/
+dist/
+.angular/
+.vscode/
+coverage/

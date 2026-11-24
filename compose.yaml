@@ -1,0 +1,73 @@
+# FixFlow local development environment.
+#   Start:        docker compose up --build --watch     (or: docker compose up -d --build)
+#   Stop (keeps data):   docker compose down
+#   Stop AND DELETE the database:   docker compose down -v
+# Full guide: docs/docker.md
+
+name: fixflow
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2025-CU11-ubuntu-24.04
+    environment:
+      ACCEPT_EULA: "Y"
+      # Read from .env (git-ignored). Compose refuses to start if it is missing.
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env (copy .env.example)}
+    ports:
+      # host 14333 -> container 1433, bound to 127.0.0.1 only (not reachable from your network).
+      # 14333 avoids any clash with the SQL Server installed on Windows.
+      - "127.0.0.1:14333:1433"
+    volumes:
+      # Named volume: the database files live outside the container and survive re-creation.
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      # "Healthy" only when SQL Server actually accepts a query. $$ = a literal $ for the shell inside the container.
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build: ./backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # "database" is the service name above: Compose's internal DNS resolves it to that container.
+      # Dev uses the sa login for simplicity; a dedicated least-privilege login is set up before production.
+      ConnectionStrings__Default: "Server=database,1433;Database=FixFlow;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./backend/FixFlow.Api
+          target: /src/FixFlow.Api
+          ignore:
+            - bin/
+            - obj/
+        - action: rebuild
+          path: ./backend/FixFlow.Api/FixFlow.Api.csproj
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:4200:4200"
+    depends_on:
+      - backend
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
+        - action: rebuild
+          path: ./frontend/angular.json
+
+volumes:
+  sqldata:
