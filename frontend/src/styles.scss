@@ -1,1 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+// Global styles: fonts, design tokens, and element defaults. Nothing component-specific belongs here.
+@use 'styles/fonts';
+@use 'styles/tokens';
+@use 'styles/base';

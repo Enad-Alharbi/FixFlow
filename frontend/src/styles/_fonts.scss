@@ -1,0 +1,18 @@
+// Self-hosted fonts from Fontsource packages (SIL Open Font License).
+// Only the subsets and weights FixFlow uses are loaded; the build copies the .woff2 files into the app,
+// so no font is ever fetched from a third-party CDN. See docs/design/design-direction.md §8.
+
+// Body text (Latin)
+@use '@fontsource/barlow/latin-400' as *;
+@use '@fontsource/barlow/latin-500' as *;
+
+// Headings, labels, tag titles, buttons (Latin)
+@use '@fontsource/barlow-semi-condensed/latin-500' as *;
+@use '@fontsource/barlow-semi-condensed/latin-600' as *;
+@use '@fontsource/barlow-semi-condensed/latin-700' as *;
+
+// Arabic (all roles). Latin characters inside Arabic text fall back to Barlow via the font stack.
+@use '@fontsource/noto-kufi-arabic/arabic-400' as *;
+@use '@fontsource/noto-kufi-arabic/arabic-500' as *;
+@use '@fontsource/noto-kufi-arabic/arabic-600' as *;
+@use '@fontsource/noto-kufi-arabic/arabic-700' as *;

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "design-docs",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5601", "--bind", "127.0.0.1", "--directory", "docs/design"],
+      "port": 5601
+    }
+  ]
+}

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FixFlow visual concepts</title>
+<!-- Preview only. The real app self-hosts its fonts. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@300;400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9ebee; color: #1d232b; font: 15px/1.5 system-ui, sans-serif; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .page > p { margin: 0 0 32px; color: #4a525c; max-width: 70ch; }
+  .concept { border-radius: 6px; margin-block-end: 40px; overflow: hidden; }
+  .concept-head { padding: 24px 28px 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+  .concept-head h2 { margin: 0; font-size: 28px; }
+  .concept-head .mood { margin: 4px 0 0; font-size: 14px; }
+  .swatches { display: flex; gap: 6px; flex-wrap: wrap; justify-content: end; }
+  .sw { width: 64px; font-size: 11px; line-height: 1.3; }
+  .sw i { display: block; height: 40px; border-radius: 4px; margin-block-end: 4px; border: 1px solid rgb(0 0 0 / .08); }
+  .stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; padding: 20px 28px 28px; }
+  .note { padding: 0 28px 24px; font-size: 13px; max-width: 90ch; }
+  .note b { font-weight: 600; }
+  @media (max-width: 640px) { .concept-head { grid-template-columns: 1fr; } .swatches { justify-content: start; } }
+
+  /* ---------- A: Work order ---------- */
+  .A { background: #f7f8f6; color: #1b2a4a; font-family: "IBM Plex Sans", "IBM Plex Sans Arabic", sans-serif; }
+  .A [lang="ar"], .A[lang="ar"] { font-family: "IBM Plex Sans Arabic", sans-serif; }
+  .A .concept-head h2 { font-weight: 600; letter-spacing: -0.01em; }
+  .A .mood, .A .note { color: #3e4652; }
+  .ticket { display: grid; grid-template-columns: 96px 1fr; background: #fff; border: 1px solid #d5dae1; border-radius: 4px; position: relative; min-height: 168px; }
+  .ticket .stub { padding: 14px 12px; border-inline-end: 2px dashed #c3cad4; display: flex; flex-direction: column; gap: 6px; background: #fbfcfd; }
+  .ticket .stub .no { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 13px; line-height: 1.25; }
+  .ticket .stub .no span { display: block; font-size: 20px; }
+  .ticket .prio { margin-block-start: auto; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 3px; background: #f2d35b; color: #4a3a00; align-self: start; }
+  .ticket::before, .ticket::after { content: ""; position: absolute; inset-inline-start: 89px; width: 14px; height: 14px; border-radius: 50%; background: #f7f8f6; border: 1px solid #d5dae1; }
+  .ticket::before { top: -8px; } .ticket::after { bottom: -8px; }
+  .ticket .body { padding: 14px 18px 52px; position: relative; }
+  .ticket h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; line-height: 1.35; }
+  .ticket .loc { font-size: 13px; color: #3e4652; margin: 0 0 12px; }
+  .ticket .rows { font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; color: #3e4652; }
+  .ticket .rows b { font-weight: 500; color: #1b2a4a; }
+  .stamp { position: absolute; inset-inline-end: 14px; bottom: 12px; transform: rotate(-6deg); border: 2px solid currentColor; border-radius: 4px; padding: 2px 10px; font-weight: 600; font-size: 14px; color: #1f4fbf; background: rgb(255 255 255 / .6); }
+  [dir="rtl"] .stamp { transform: rotate(6deg); }
+  .A .rail { grid-column: 1 / -1; display: flex; gap: 0; font-size: 12px; }
+  .A .rail span { flex: 1; padding: 8px 10px; border-block-start: 3px solid #d5dae1; color: #6a7380; }
+  .A .rail span.done { border-color: #1b2a4a; color: #1b2a4a; }
+  .A .rail span.now { border-color: #f2c400; color: #1b2a4a; font-weight: 600; }
+
+  /* ---------- B: Site plan ---------- */
+  .B { background: #eef1ec; color: #2b2f2e; font-family: "Readex Pro", sans-serif; }
+  .B .concept-head h2 { font-weight: 500; }
+  .B .mood, .B .note { color: #4d5552; }
+  .sheet { background-color: #fbfcfa; background-image: radial-gradient(#cfd6d1 1px, transparent 1px); background-size: 16px 16px; border: 1px solid #8c958f; padding: 16px; display: grid; gap: 14px; min-height: 230px; }
+  .sheet h3 { margin: 0; font-weight: 500; font-size: 19px; line-height: 1.35; background: #fbfcfa; justify-self: start; padding-inline-end: 8px; }
+  .sheet .path { display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; }
+  .sheet .path span { border: 1px solid #0f6c6a; color: #0f6c6a; padding: 1px 8px; background: #fbfcfa; }
+  .titleblock { margin-block-start: auto; border: 1.5px solid #2b2f2e; display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; background: #fbfcfa; }
+  .titleblock div { padding: 6px 8px; border: 0.75px solid #8c958f; }
+  .titleblock small { display: block; color: #6b736f; font-size: 11px; }
+  .titleblock strong { font-weight: 500; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .titleblock .st strong { color: #0f6c6a; }
+
+  /* ---------- C: Equipment tag ---------- */
+  .C { background: #e4e7ea; color: #1a1a1a; font-family: "Barlow Semi Condensed", "Noto Kufi Arabic", sans-serif; }
+  .C [lang="ar"], .C[lang="ar"] { font-family: "Noto Kufi Arabic", sans-serif; }
+  .C .concept-head h2 { font-weight: 700; font-size: 32px; }
+  .C .mood, .C .note { color: #3b4047; font-family: system-ui, sans-serif; }
+  .tagwrap { display: flex; gap: 0; align-items: stretch; }
+  .tag { flex: 1; background: #fff; clip-path: polygon(28px 0, 100% 0, 100% 100%, 28px 100%, 0 calc(100% - 28px), 0 28px); padding: 16px 18px 16px 52px; position: relative; border-inline-start: 0; min-height: 190px; display: flex; flex-direction: column; gap: 8px; }
+  [dir="rtl"] .tag { clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%); padding: 16px 52px 16px 18px; }
+  .tag .hole { position: absolute; inset-inline-start: 16px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: #e4e7ea; box-shadow: inset 0 0 0 3px #c9ced4; }
+  .tag .band { background: #005eb8; color: #fff; font-weight: 700; font-size: 18px; padding: 4px 10px; align-self: start; }
+  .C [lang="ar"] .band, .C[lang="ar"] .band { font-size: 15px; }
+  .tag h3 { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.15; }
+  .C [lang="ar"] .tag h3 { font-size: 19px; line-height: 1.6; font-weight: 600; }
+  .tag .meta { margin-block-start: auto; display: flex; gap: 18px; font-size: 15px; font-weight: 600; flex-wrap: wrap; }
+  .C [lang="ar"] .tag .meta { font-size: 13px; }
+  .tag .meta span em { font-style: normal; display: block; font-weight: 500; font-size: 12px; color: #5b6168; }
+  .tag .prio { border-inline-start: 6px solid #ffc20e; padding-inline-start: 8px; }
+
+  /* ---------- D: Work tag (A content + C container) ---------- */
+  .D { background: #f7f8f6; color: #1b2a4a; font-family: "IBM Plex Sans", "IBM Plex Sans Arabic", sans-serif; }
+  .D [lang="ar"] { font-family: "IBM Plex Sans Arabic", sans-serif; }
+  .D .concept-head h2 { font-weight: 600; }
+  .D .mood, .D .note { color: #3e4652; }
+  .D .stage { grid-template-columns: minmax(0, 680px); }
+  .D .variant { grid-column: 1 / -1; margin: 8px 0 -8px; font-size: 13px; font-weight: 600; color: #3e4652; }
+  .wtag { background: #fff; border: 1px solid #d5dae1; clip-path: polygon(24px 0, 100% 0, 100% 100%, 24px 100%, 0 calc(100% - 24px), 0 24px); padding: 16px 18px 0; padding-inline-start: 48px; position: relative; display: flex; flex-direction: column; gap: 10px; }
+  /* clip-path has no logical form, so only the shape needs an RTL rule. */
+  .wtag[dir="rtl"] { clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%); }
+  .wtag .hole { position: absolute; inset-inline-start: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: #f7f8f6; box-shadow: inset 0 0 0 2px #d5dae1; }
+  .wtag .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .wtag .band { background: #005eb8; color: #fff; font-weight: 600; font-size: 14px; padding: 3px 10px; }
+  .wtag .no { font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; color: #3e4652; }
+  .wtag h3 { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .wtag[lang="ar"] h3, [lang="ar"] .wtag h3 { line-height: 1.6; }
+  .wtag .loc { margin: -4px 0 0; font-size: 13px; color: #3e4652; }
+  .wtag .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; font-size: 14px; font-weight: 500; }
+  .wtag .fields em { display: block; font-style: normal; font-weight: 400; font-size: 12px; color: #5b6470; }
+  .wtag .fields .prio { border-inline-start: 4px solid #f2c400; padding-inline-start: 8px; }
+  .wtag .rail { display: flex; margin-block-start: 4px; margin-inline: -48px -18px; font-size: 12px; border-block-start: 1px solid #e3e7ec; }
+  .wtag .rail span { flex: 1; padding: 8px 6px 10px; text-align: center; border-block-start: 3px solid transparent; color: #7a8390; margin-block-start: -1px; }
+  .wtag .rail span.done { border-color: #1b2a4a; color: #1b2a4a; }
+  .wtag .rail span.now { border-color: #005eb8; color: #005eb8; font-weight: 600; }
+  .D.alt, .D .alt { font-family: "Barlow Semi Condensed", "Noto Kufi Arabic", sans-serif; }
+  .D .alt[lang="ar"] { font-family: "Noto Kufi Arabic", sans-serif; }
+  .D .alt h3 { font-size: 24px; font-weight: 700; line-height: 1.15; }
+  .D .alt[lang="ar"] h3 { font-size: 19px; line-height: 1.6; }
+  .D .alt .fields { font-size: 15px; font-weight: 600; }
+  .D .alt[lang="ar"] .fields { font-size: 13px; }
+  /* Phones: two field columns; the rail keeps its segments but only the current step is labelled. */
+  @media (max-width: 480px) {
+    .wtag .fields { grid-template-columns: 1fr 1fr; }
+    .wtag .rail span:not(.now) { font-size: 0; padding-block: 6px 0; }
+    .wtag .rail span.now { flex: 2; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>FixFlow visual concepts</h1>
+  <p>Three directions for the same request: an air conditioner not cooling in room 204, assigned to a technician. Each concept is shown in English and Arabic. Pick one, or name what you like from each.</p>
+
+  <!-- ===== D: chosen mix ===== -->
+  <section class="concept D" aria-labelledby="d-title">
+    <div class="concept-head">
+      <div>
+        <h2 id="d-title">D. Work tag (A + C)</h2>
+        <p class="mood">C's hang-tag container carrying A's work-order content: request number, location, requester, technician, priority, and the progress rail.</p>
+      </div>
+      <div class="swatches" aria-label="Palette">
+        <div class="sw"><i style="background:#f7f8f6"></i>Paper<br>#F7F8F6</div>
+        <div class="sw"><i style="background:#1b2a4a"></i>Ink<br>#1B2A4A</div>
+        <div class="sw"><i style="background:#005eb8"></i>Safety blue<br>#005EB8</div>
+        <div class="sw"><i style="background:#f2c400"></i>Canary<br>#F2C400</div>
+        <div class="sw"><i style="background:#d5dae1"></i>Rule<br>#D5DAE1</div>
+      </div>
+    </div>
+    <div class="stage">
+      <p class="variant">Type option 1: IBM Plex Sans + IBM Plex Sans Arabic (from A)</p>
+      <article class="wtag" dir="ltr" lang="en">
+        <span class="hole" aria-hidden="true"></span>
+        <div class="top"><span class="band">Assigned</span><span class="no">REQ-000123</span></div>
+        <h3>Air conditioner not cooling</h3>
+        <p class="loc">Building A › Floor 2 › Room 204</p>
+        <div class="fields"><span><em>Requested by</em>Sara Al-Qahtani</span><span><em>Technician</em>Omar Haddad</span><span class="prio"><em>Priority</em>High</span></div>
+        <div class="rail" aria-label="Status progression"><span class="done">Submitted</span><span class="now" aria-current="step">Assigned</span><span>In progress</span><span>Resolved</span><span>Closed</span></div>
+      </article>
+      <article class="wtag" dir="rtl" lang="ar">
+        <span class="hole" aria-hidden="true"></span>
+        <div class="top"><span class="band">تم الإسناد</span><span class="no">REQ-000123</span></div>
+        <h3>المكيّف لا يبرّد</h3>
+        <p class="loc">المبنى A › الطابق 2 › الغرفة 204</p>
+        <div class="fields"><span><em>مقدّم الطلب</em>سارة القحطاني</span><span><em>الفني</em>عمر حداد</span><span class="prio"><em>الأولوية</em>عالية</span></div>
+        <div class="rail" aria-label="مراحل الطلب"><span class="done">مقدّم</span><span class="now" aria-current="step">تم الإسناد</span><span>قيد التنفيذ</span><span>تم الحل</span><span>مغلق</span></div>
+      </article>
+
+      <p class="variant">Type option 2: Barlow Semi Condensed + Noto Kufi Arabic (from C)</p>
+      <article class="wtag alt" dir="ltr" lang="en">
+        <span class="hole" aria-hidden="true"></span>
+        <div class="top"><span class="band">Assigned</span><span class="no">REQ-000123</span></div>
+        <h3>Air conditioner not cooling</h3>
+        <p class="loc">Building A › Floor 2 › Room 204</p>
+        <div class="fields"><span><em>Requested by</em>Sara Al-Qahtani</span><span><em>Technician</em>Omar Haddad</span><span class="prio"><em>Priority</em>High</span></div>
+        <div class="rail" aria-label="Status progression"><span class="done">Submitted</span><span class="now" aria-current="step">Assigned</span><span>In progress</span><span>Resolved</span><span>Closed</span></div>
+      </article>
+      <article class="wtag alt" dir="rtl" lang="ar">
+        <span class="hole" aria-hidden="true"></span>
+        <div class="top"><span class="band">تم الإسناد</span><span class="no">REQ-000123</span></div>
+        <h3>المكيّف لا يبرّد</h3>
+        <p class="loc">المبنى A › الطابق 2 › الغرفة 204</p>
+        <div class="fields"><span><em>مقدّم الطلب</em>سارة القحطاني</span><span><em>الفني</em>عمر حداد</span><span class="prio"><em>الأولوية</em>عالية</span></div>
+        <div class="rail" aria-label="مراحل الطلب"><span class="done">مقدّم</span><span class="now" aria-current="step">تم الإسناد</span><span>قيد التنفيذ</span><span>تم الحل</span><span>مغلق</span></div>
+      </article>
+    </div>
+    <p class="note"><b>Container (from C):</b> chamfered hang tag with a punched hole at the start edge, mirrored in Arabic; a status band in the safety colour for the current status. <b>Content (from A):</b> request number, location path, requester, technician, priority, and the progress rail along the bottom edge. <b>Surroundings (from A):</b> paper and ink, so long desktop sessions stay calm and the tag is the one bold element.</p>
+  </section>
+
+  <!-- ===== A ===== -->
+  <section class="concept A" aria-labelledby="a-title">
+    <div class="concept-head">
+      <div>
+        <h2 id="a-title">A. Work order</h2>
+        <p class="mood">Accountable, calm, paper trail. Every request is a work order with a tear-off stub and a status stamp.</p>
+      </div>
+      <div class="swatches" aria-label="Palette">
+        <div class="sw"><i style="background:#f7f8f6"></i>Paper<br>#F7F8F6</div>
+        <div class="sw"><i style="background:#1b2a4a"></i>Ink<br>#1B2A4A</div>
+        <div class="sw"><i style="background:#3e4652"></i>Carbon<br>#3E4652</div>
+        <div class="sw"><i style="background:#f2d35b"></i>Canary<br>#F2D35B</div>
+        <div class="sw"><i style="background:#d5dae1"></i>Rule<br>#D5DAE1</div>
+        <div class="sw"><i style="background:#b4232a"></i>Stamp red<br>#B4232A</div>
+      </div>
+    </div>
+    <div class="stage">
+      <article class="ticket" dir="ltr" lang="en">
+        <div class="stub"><div class="no">REQ<span>000123</span></div><span class="prio">High</span></div>
+        <div class="body">
+          <h3>Air conditioner not cooling</h3>
+          <p class="loc">Building A › Floor 2 › Room 204</p>
+          <div class="rows"><span>Requested by</span><b>Sara Al-Qahtani</b><span>Technician</span><b>Omar Haddad</b></div>
+          <span class="stamp">Assigned</span>
+        </div>
+      </article>
+      <article class="ticket" dir="rtl" lang="ar">
+        <div class="stub"><div class="no">REQ<span>000123</span></div><span class="prio">عالية</span></div>
+        <div class="body">
+          <h3>المكيّف لا يبرّد</h3>
+          <p class="loc">المبنى A › الطابق 2 › الغرفة 204</p>
+          <div class="rows"><span>مقدّم الطلب</span><b>سارة القحطاني</b><span>الفني</span><b>عمر حداد</b></div>
+          <span class="stamp">تم الإسناد</span>
+        </div>
+      </article>
+      <div class="rail" dir="ltr" lang="en" aria-label="Status progression"><span class="done">Submitted</span><span class="now">Assigned</span><span>In progress</span><span>Resolved</span><span>Closed</span></div>
+    </div>
+    <p class="note"><b>Type:</b> IBM Plex Sans and IBM Plex Sans Arabic, one superfamily drawn for both scripts, so weights and proportions match across languages. <b>Layout:</b> lists are stacks of tickets (stub at the start edge, mirrored in Arabic); detail pages read like a filled-in form. <b>Signature:</b> the tear-off stub plus a status stamp; the progression rail shows where the request is. <b>Control Panel:</b> ink-navy chrome with paper text instead of paper chrome.</p>
+  </section>
+
+  <!-- ===== B ===== -->
+  <section class="concept B" aria-labelledby="b-title">
+    <div class="concept-head">
+      <div>
+        <h2 id="b-title">B. Site plan</h2>
+        <p class="mood">Spatial, precise, quiet. Requests are anchored to places, presented like architectural drawing sheets.</p>
+      </div>
+      <div class="swatches" aria-label="Palette">
+        <div class="sw"><i style="background:#eef1ec"></i>Vellum<br>#EEF1EC</div>
+        <div class="sw"><i style="background:#2b2f2e"></i>Graphite<br>#2B2F2E</div>
+        <div class="sw"><i style="background:#8c958f"></i>Linework<br>#8C958F</div>
+        <div class="sw"><i style="background:#0f6c6a"></i>Survey teal<br>#0F6C6A</div>
+        <div class="sw"><i style="background:#c8323a"></i>Redline<br>#C8323A</div>
+      </div>
+    </div>
+    <div class="stage">
+      <article class="sheet" dir="ltr" lang="en">
+        <h3>Air conditioner not cooling</h3>
+        <div class="path"><span>Building A</span><span>Floor 2</span><span>Room 204</span></div>
+        <div class="titleblock">
+          <div><small>No.</small><strong>REQ-000123</strong></div>
+          <div class="st"><small>Status</small><strong>Assigned</strong></div>
+          <div><small>Technician</small><strong>Omar Haddad</strong></div>
+          <div><small>Priority</small><strong>High</strong></div>
+        </div>
+      </article>
+      <article class="sheet" dir="rtl" lang="ar">
+        <h3>المكيّف لا يبرّد</h3>
+        <div class="path"><span>المبنى A</span><span>الطابق 2</span><span>الغرفة 204</span></div>
+        <div class="titleblock">
+          <div><small>الرقم</small><strong>REQ-000123</strong></div>
+          <div class="st"><small>الحالة</small><strong>تم الإسناد</strong></div>
+          <div><small>الفني</small><strong>عمر حداد</strong></div>
+          <div><small>الأولوية</small><strong>عالية</strong></div>
+        </div>
+      </article>
+    </div>
+    <p class="note"><b>Type:</b> Readex Pro, one variable family covering Arabic and Latin, built for readability. <b>Layout:</b> a visible 8px module (dot grid on drawing surfaces only), dense aligned tables for supervisors. <b>Signature:</b> the title block, the boxed summary in the corner of every request, like the one on a construction drawing; location chips show the building path. <b>Control Panel:</b> graphite surfaces with teal linework.</p>
+  </section>
+
+  <!-- ===== C ===== -->
+  <section class="concept C" aria-labelledby="c-title">
+    <div class="concept-head">
+      <div>
+        <h2 id="c-title">C. Equipment tag</h2>
+        <p class="mood">Bold, field-ready, readable at arm's length. Status uses the safety-sign colour language (ISO 7010).</p>
+      </div>
+      <div class="swatches" aria-label="Palette">
+        <div class="sw"><i style="background:#ffffff"></i>Signal white<br>#FFFFFF</div>
+        <div class="sw"><i style="background:#1a1a1a"></i>Tool black<br>#1A1A1A</div>
+        <div class="sw"><i style="background:#ffc20e"></i>Safety yellow<br>#FFC20E</div>
+        <div class="sw"><i style="background:#005eb8"></i>Safety blue<br>#005EB8</div>
+        <div class="sw"><i style="background:#008a4b"></i>Safety green<br>#008A4B</div>
+        <div class="sw"><i style="background:#d52b1e"></i>Signal red<br>#D52B1E</div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="tagwrap" dir="ltr" lang="en">
+        <article class="tag">
+          <span class="hole" aria-hidden="true"></span>
+          <span class="band">Assigned</span>
+          <h3>Air conditioner not cooling</h3>
+          <div class="meta"><span><em>Where</em>Room 204, Bldg A</span><span><em>Technician</em>Omar Haddad</span><span class="prio"><em>Priority</em>High</span></div>
+        </article>
+      </div>
+      <div class="tagwrap" dir="rtl" lang="ar">
+        <article class="tag">
+          <span class="hole" aria-hidden="true"></span>
+          <span class="band">تم الإسناد</span>
+          <h3>المكيّف لا يبرّد</h3>
+          <div class="meta"><span><em>الموقع</em>الغرفة 204، المبنى A</span><span><em>الفني</em>عمر حداد</span><span class="prio"><em>الأولوية</em>عالية</span></div>
+        </article>
+      </div>
+    </div>
+    <p class="note"><b>Type:</b> Barlow Semi Condensed (Latin, derived from road-sign lettering) with Noto Kufi Arabic (geometric Kufi). <b>Layout:</b> big touch targets, full-width status bands, mobile first. <b>Signature:</b> the hang tag; changing status swaps the tag. <b>Control Panel:</b> tool-black chrome with a yellow Platform tag. <b>Risk:</b> yellow and black can tip into construction-site cliché if overused.</p>
+  </section>
+</main>
+</body>
+</html>

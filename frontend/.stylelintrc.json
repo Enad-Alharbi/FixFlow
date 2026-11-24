@@ -1,3 +1,42 @@
 {
-  "extends": ["stylelint-config-standard-scss", "stylelint-plugin-logical-css/configs/recommended"]
+  "extends": ["stylelint-config-standard-scss", "stylelint-plugin-logical-css/configs/recommended"],
+  "plugins": ["stylelint-declaration-strict-value"],
+  "rules": {
+    "scale-unlimited/declaration-strict-value": [
+      [
+        "/color$/",
+        "fill",
+        "stroke",
+        "background",
+        "font-family",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "z-index",
+        "border-radius",
+        "box-shadow",
+        "/^(margin|padding)/",
+        "/^(gap|row-gap|column-gap)$/",
+        "/^transition/"
+      ],
+      {
+        "ignoreValues": [
+          "/^((0|auto)\\s*)+$/",
+          "inherit",
+          "initial",
+          "unset",
+          "none",
+          "transparent",
+          "currentcolor"
+        ],
+        "message": "Use a design token (var(--...)) for \"${property}\" instead of \"${value}\" — see src/styles/_tokens.scss."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/styles/_tokens.scss", "src/styles/_fonts.scss"],
+      "rules": { "scale-unlimited/declaration-strict-value": null }
+    }
+  ]
 }

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FixFlow prototype: request detail</title>
+<!-- Preview only: the app self-hosts fonts (Fontsource) and icons (individual Tabler SVGs). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Semi+Condensed:wght@500;600;700&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.52.0/dist/tabler-icons.min.css">
+<style>
+  /* ===== Tokens (docs/design/design-direction.md §4) ===== */
+  :root {
+    --color-page: #f7f8f6; --color-surface: #ffffff; --color-text: #1b2a4a; --color-text-muted: #4e5866;
+    --color-border: #d5dae1; --color-border-soft: #e3e7ec; --color-accent: #005eb8; --color-highlight: #f2c400;
+    --color-danger: #c4221a;
+    --status-assigned: #005eb8; --status-assigned-on: #ffffff;
+    --priority-high: #e8770e;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 40px;
+    --radius-sm: 2px; --radius-md: 4px; --tag-chamfer: 24px;
+    --text-xs: .75rem; --text-sm: .875rem; --text-md: 1rem; --text-lg: 1.125rem; --text-xl: 1.25rem; --text-2xl: 1.5rem; --text-3xl: 1.875rem;
+    --font-display: "Barlow Semi Condensed", sans-serif; --font-body: "Barlow", sans-serif;
+    --font-scale: 1; --leading-body: 1.5; --leading-heading: 1.15;
+    --dur-fast: 120ms; --ease-out: cubic-bezier(.2,.7,.2,1);
+    --z-sticky: 200;
+  }
+  html:lang(ar) {
+    --font-display: "Noto Kufi Arabic", sans-serif; --font-body: "Noto Kufi Arabic", sans-serif;
+    --font-scale: .88; --leading-body: 1.75; --leading-heading: 1.5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-page); color: var(--color-text); font-family: var(--font-body); font-size: calc(var(--text-md) * var(--font-scale)); line-height: var(--leading-body); }
+  .num { font-family: "Barlow", sans-serif; font-variant-numeric: tabular-nums; }
+  h1, h2, h3 { font-family: var(--font-display); line-height: var(--leading-heading); margin: 0; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .ti { font-size: 1.25em; line-height: 1; vertical-align: -0.2em; }
+  [dir="rtl"] .mirror { transform: scaleX(-1); display: inline-block; }
+
+  /* ===== Top bar (tenant app: white bar on paper) ===== */
+  .topbar { background: var(--color-surface); border-block-end: 1px solid var(--color-border); }
+  .topbar-inner { max-width: 1200px; margin: 0 auto; padding: var(--space-3) var(--space-4); display: flex; align-items: center; gap: var(--space-5); }
+  .brand { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 1.375rem; letter-spacing: -0.01em; }
+  .tenant { color: var(--color-text-muted); font-size: calc(var(--text-sm) * var(--font-scale)); padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--color-border); }
+  .topbar nav { margin-inline-start: auto; display: flex; align-items: center; gap: var(--space-3); }
+  .lang { font: 600 var(--text-sm) "Barlow Semi Condensed", sans-serif; background: none; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-1) var(--space-3); color: var(--color-text); cursor: pointer; min-height: 36px; }
+  .lang:lang(ar) { font-family: "Noto Kufi Arabic", sans-serif; font-size: .8rem; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--color-text); color: #fff; display: grid; place-items: center; font: 600 var(--text-sm) "Barlow Semi Condensed", sans-serif; }
+
+  /* ===== Page ===== */
+  .page { max-width: 1200px; margin: 0 auto; padding: var(--space-5) var(--space-4) 120px; }
+  .back { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--color-accent); text-decoration: none; font-weight: 500; margin-block-end: var(--space-4); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-6); align-items: start; }
+  .col-main { display: grid; gap: var(--space-6); }
+  aside { display: grid; gap: var(--space-4); position: sticky; top: var(--space-4); }
+  .panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-5); }
+  .panel h2 { font-size: calc(var(--text-lg) * var(--font-scale)); font-weight: 600; margin-block-end: var(--space-3); }
+
+  /* ===== Work tag (signature element) ===== */
+  .tag-frame { background: var(--color-border); clip-path: polygon(var(--tag-chamfer) 0, 100% 0, 100% 100%, var(--tag-chamfer) 100%, 0 calc(100% - var(--tag-chamfer)), 0 var(--tag-chamfer)); padding: 1px; }
+  .tag { position: relative; background: var(--color-surface); clip-path: inherit; padding: var(--space-5) var(--space-6) 0; padding-inline-start: 56px; display: grid; gap: var(--space-3); }
+  [dir="rtl"] .tag-frame { clip-path: polygon(0 0, calc(100% - var(--tag-chamfer)) 0, 100% var(--tag-chamfer), 100% calc(100% - var(--tag-chamfer)), calc(100% - var(--tag-chamfer)) 100%, 0 100%); }
+  .tag .hole { position: absolute; inset-inline-start: 18px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: var(--color-page); box-shadow: inset 0 0 0 2px var(--color-border); }
+  .tag .top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+  .band { display: inline-flex; align-items: center; gap: var(--space-2); background: var(--status-assigned); color: var(--status-assigned-on); font: 700 calc(var(--text-md) * var(--font-scale)) var(--font-display); padding: var(--space-1) var(--space-3); }
+  .req-no { font-weight: 500; color: var(--color-text-muted); font-size: var(--text-md); }
+  .tag h1 { font-size: calc(var(--text-3xl) * var(--font-scale)); font-weight: 700; }
+  .loc { color: var(--color-text-muted); margin: calc(var(--space-2) * -1) 0 0; display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+  .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); margin-block-start: var(--space-2); }
+  .field-label { display: block; font-size: calc(var(--text-sm) * var(--font-scale)); color: var(--color-text-muted); }
+  .field-value { font: 600 calc(var(--text-lg) * var(--font-scale)) var(--font-display); }
+  .prio { border-inline-start: 4px solid var(--priority-high); padding-inline-start: var(--space-3); }
+  .prio .ti { color: var(--priority-high); }
+  .rail { list-style: none; display: flex; margin: var(--space-3) 0 0; margin-inline: -56px calc(var(--space-6) * -1); padding: 0; border-block-start: 1px solid var(--color-border-soft); font-size: calc(var(--text-sm) * var(--font-scale)); }
+  .rail li { flex: 1; text-align: center; padding: var(--space-2) var(--space-1) var(--space-3); border-block-start: 4px solid transparent; margin-block-start: -1px; color: var(--color-text-muted); }
+  .rail li.done { border-color: var(--color-text); color: var(--color-text); }
+  .rail li.now { border-color: var(--status-assigned); color: var(--status-assigned); font-weight: 600; }
+
+  /* ===== Description, attachments ===== */
+  .desc p { margin: 0 0 var(--space-4); max-width: 68ch; }
+  .files { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .file { display: inline-flex; align-items: center; gap: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); font-size: calc(var(--text-sm) * var(--font-scale)); color: var(--color-text); text-decoration: none; }
+
+  /* ===== Activity timeline ===== */
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { position: relative; padding-inline-start: 44px; padding-block-end: var(--space-5); }
+  .timeline li::before { content: ""; position: absolute; inset-inline-start: 15px; top: 32px; bottom: 0; width: 2px; background: var(--color-border-soft); }
+  .timeline li:last-child::before { display: none; }
+  .t-icon { position: absolute; inset-inline-start: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--color-surface); border: 1.5px solid var(--color-text); color: var(--color-text); }
+  .t-icon .ti { font-size: 1rem; vertical-align: 0; }
+  .t-icon.assigned { background: var(--status-assigned); border-color: var(--status-assigned); color: #fff; }
+  .t-icon.priority { border-color: var(--priority-high); color: var(--priority-high); }
+  .t-icon.comment { border-color: var(--color-border); color: var(--color-text-muted); }
+  .t-title { font-weight: 500; margin: 0; }
+  .t-meta { margin: 0; font-size: calc(var(--text-sm) * var(--font-scale)); color: var(--color-text-muted); }
+  .t-quote { margin: var(--space-2) 0 0; padding: var(--space-3); background: var(--color-page); border-radius: var(--radius-md); max-width: 60ch; }
+
+  /* ===== Actions and details ===== */
+  .next p { margin: 0 0 var(--space-4); color: var(--color-text-muted); }
+  .btn { display: flex; width: 100%; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; border-radius: var(--radius-md); font: 600 calc(var(--text-lg) * var(--font-scale)) var(--font-display); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
+  .btn-primary { background: var(--color-accent); color: #fff; border: 0; }
+  .btn-primary:hover { background: #004c96; }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); margin-block-start: var(--space-2); }
+  .btn-secondary:hover { border-color: var(--color-text-muted); }
+  dl { margin: 0; display: grid; gap: var(--space-3); }
+  dt { font-size: calc(var(--text-sm) * var(--font-scale)); color: var(--color-text-muted); }
+  dd { margin: 0; font-weight: 500; display: flex; gap: var(--space-2); align-items: center; }
+  .mobile-bar { display: none; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  /* ===== Phone ===== */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    aside { position: static; }
+    .next .btn-primary { display: none; }
+    .mobile-bar { display: block; position: fixed; inset-inline: 0; bottom: 0; z-index: var(--z-sticky); background: var(--color-surface); border-block-start: 1px solid var(--color-border); padding: var(--space-3) var(--space-4); }
+    .tenant { display: none; }
+  }
+  @media (max-width: 480px) {
+    :root { --tag-chamfer: 16px; }
+    .tag { padding-inline: 44px var(--space-4); }
+    .tag .hole { inset-inline-start: 13px; width: 16px; height: 16px; margin-top: -8px; }
+    .rail { margin-inline: -44px calc(var(--space-4) * -1); }
+    .fields { grid-template-columns: 1fr 1fr; }
+    .rail li:not(.now) { font-size: 0; padding-block: var(--space-2) 0; }
+    .rail li.now { flex: 2; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">FixFlow</span>
+    <span class="tenant" data-i18n="tenant"></span>
+    <nav>
+      <button class="lang" type="button" id="lang-switch"></button>
+      <span class="avatar" aria-hidden="true">OH</span>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <a class="back" href="#"><i class="ti ti-arrow-left mirror" aria-hidden="true"></i><span data-i18n="back"></span></a>
+
+  <div class="layout">
+    <div class="col-main">
+      <div class="tag-frame">
+        <article class="tag" aria-labelledby="req-title">
+          <span class="hole" aria-hidden="true"></span>
+          <div class="top">
+            <span class="band"><i class="ti ti-user-check" aria-hidden="true"></i><span data-i18n="status.assigned"></span></span>
+            <span class="req-no num"><bdi>REQ-000123</bdi></span>
+          </div>
+          <h1 id="req-title" data-i18n="title"></h1>
+          <p class="loc"><i class="ti ti-map-pin" aria-hidden="true"></i><span data-i18n="location"></span></p>
+          <div class="fields">
+            <div><span class="field-label" data-i18n="f.requester"></span><span class="field-value" data-i18n="sara"></span></div>
+            <div><span class="field-label" data-i18n="f.technician"></span><span class="field-value" data-i18n="omar"></span></div>
+            <div class="prio"><span class="field-label" data-i18n="f.priority"></span><span class="field-value"><i class="ti ti-chevron-up" aria-hidden="true"></i> <span data-i18n="p.high"></span></span></div>
+          </div>
+          <ol class="rail" data-i18n-label="rail">
+            <li class="done" data-i18n="status.submitted"></li>
+            <li class="now" aria-current="step" data-i18n="status.assigned"></li>
+            <li data-i18n="status.inProgress"></li>
+            <li data-i18n="status.resolved"></li>
+            <li data-i18n="status.closed"></li>
+          </ol>
+        </article>
+      </div>
+
+      <section class="panel desc" aria-labelledby="h-desc">
+        <h2 id="h-desc" data-i18n="h.description"></h2>
+        <p dir="auto" data-i18n="description"></p>
+        <div class="files">
+          <a class="file" href="#"><i class="ti ti-photo" aria-hidden="true"></i><bdi>ac-unit-204.jpg</bdi></a>
+          <a class="file" href="#"><i class="ti ti-photo" aria-hidden="true"></i><bdi>thermostat.jpg</bdi></a>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-activity">
+        <h2 id="h-activity" data-i18n="h.activity"></h2>
+        <ol class="timeline">
+          <li>
+            <span class="t-icon"><i class="ti ti-inbox" aria-hidden="true"></i></span>
+            <p class="t-title" data-i18n="ev.submitted"></p>
+            <p class="t-meta"><span data-i18n="sara"></span><span data-i18n="sep"></span><time class="num" data-date="2026-11-24T05:12:00Z"></time></p>
+          </li>
+          <li>
+            <span class="t-icon priority"><i class="ti ti-chevron-up" aria-hidden="true"></i></span>
+            <p class="t-title" data-i18n="ev.priority"></p>
+            <p class="t-meta"><span data-i18n="khalid"></span><span data-i18n="sep"></span><time class="num" data-date="2026-11-24T05:40:00Z"></time></p>
+          </li>
+          <li>
+            <span class="t-icon assigned"><i class="ti ti-user-check" aria-hidden="true"></i></span>
+            <p class="t-title" data-i18n="ev.assigned"></p>
+            <p class="t-meta"><span data-i18n="khalid"></span><span data-i18n="sep"></span><time class="num" data-date="2026-11-24T05:41:00Z"></time></p>
+          </li>
+          <li>
+            <span class="t-icon comment"><i class="ti ti-message" aria-hidden="true"></i></span>
+            <p class="t-title" data-i18n="ev.comment"></p>
+            <p class="t-meta"><span data-i18n="khalid"></span><span data-i18n="sep"></span><time class="num" data-date="2026-11-24T05:42:00Z"></time></p>
+            <p class="t-quote" dir="auto" data-i18n="comment"></p>
+          </li>
+        </ol>
+      </section>
+    </div>
+
+    <aside>
+      <section class="panel next" aria-labelledby="h-next">
+        <h2 id="h-next" data-i18n="h.next"></h2>
+        <p data-i18n="nextText"></p>
+        <button class="btn btn-primary" type="button"><i class="ti ti-tool" aria-hidden="true"></i><span data-i18n="startWork"></span></button>
+        <button class="btn btn-secondary" type="button"><i class="ti ti-message-plus" aria-hidden="true"></i><span data-i18n="addNote"></span></button>
+      </section>
+      <section class="panel" aria-labelledby="h-details">
+        <h2 id="h-details" data-i18n="h.details"></h2>
+        <dl>
+          <div><dt data-i18n="f.category"></dt><dd><i class="ti ti-air-conditioning" aria-hidden="true"></i><span data-i18n="cat.ac"></span></dd></div>
+          <div><dt data-i18n="f.created"></dt><dd><time class="num" data-date="2026-11-24T05:12:00Z"></time></dd></div>
+          <div><dt data-i18n="f.contact"></dt><dd class="num"><bdi>+966 50 123 4567</bdi></dd></div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<div class="mobile-bar">
+  <button class="btn btn-primary" type="button"><i class="ti ti-tool" aria-hidden="true"></i><span data-i18n="startWork"></span></button>
+</div>
+
+<script>
+  const strings = {
+    en: {
+      tenant: 'Al Noor Hospital', back: 'Back to requests', title: 'Air conditioner not cooling',
+      location: 'Building A › Floor 2 › Room 204', sara: 'Sara Al-Qahtani', omar: 'Omar Haddad', khalid: 'Khalid Al-Harbi',
+      'f.requester': 'Requested by', 'f.technician': 'Technician', 'f.priority': 'Priority', 'f.category': 'Category', 'f.created': 'Created', 'f.contact': 'Requester phone',
+      'p.high': 'High', 'status.submitted': 'Submitted', 'status.assigned': 'Assigned', 'status.inProgress': 'In progress', 'status.resolved': 'Resolved', 'status.closed': 'Closed',
+      rail: 'Request progress', 'h.description': 'Description', 'h.activity': 'Activity', 'h.next': 'Your next step', 'h.details': 'Details',
+      description: 'The air conditioner in room 204 has been blowing warm air since this morning. The thermostat shows 28°C even though it is set to 22°C.',
+      'ev.submitted': 'Request submitted', 'ev.priority': 'Priority set to high', 'ev.assigned': 'Assigned to Omar Haddad', 'ev.comment': 'Comment',
+      comment: 'This is a patient room, please treat it as urgent.',
+      nextText: 'Start work when you reach the room. The requester will see that it is in progress.',
+      startWork: 'Start work', addNote: 'Add note', 'cat.ac': 'Air conditioning', switchTo: 'العربية', sep: ', '
+    },
+    ar: {
+      tenant: 'مستشفى النور', back: 'العودة إلى الطلبات', title: 'المكيّف لا يبرّد',
+      location: 'المبنى A › الطابق 2 › الغرفة 204', sara: 'سارة القحطاني', omar: 'عمر حداد', khalid: 'خالد الحربي',
+      'f.requester': 'مقدّم الطلب', 'f.technician': 'الفني', 'f.priority': 'الأولوية', 'f.category': 'الفئة', 'f.created': 'تاريخ الإنشاء', 'f.contact': 'هاتف مقدّم الطلب',
+      'p.high': 'عالية', 'status.submitted': 'مقدّم', 'status.assigned': 'تم الإسناد', 'status.inProgress': 'قيد التنفيذ', 'status.resolved': 'تم الحل', 'status.closed': 'مغلق',
+      rail: 'مراحل الطلب', 'h.description': 'الوصف', 'h.activity': 'سجل النشاط', 'h.next': 'خطوتك التالية', 'h.details': 'التفاصيل',
+      description: 'المكيّف في الغرفة 204 يُخرج هواءً دافئًا منذ الصباح. يعرض منظم الحرارة 28 درجة مئوية مع أنه مضبوط على 22 درجة.',
+      'ev.submitted': 'تم تقديم الطلب', 'ev.priority': 'تم تعيين الأولوية: عالية', 'ev.assigned': 'تم الإسناد إلى عمر حداد', 'ev.comment': 'تعليق',
+      comment: 'هذه غرفة مريض، يُرجى التعامل معها كحالة عاجلة.',
+      nextText: 'ابدأ العمل عند وصولك إلى الغرفة. سيرى مقدّم الطلب أن الطلب قيد التنفيذ.',
+      startWork: 'بدء العمل', addNote: 'إضافة ملاحظة', 'cat.ac': 'التكييف', switchTo: 'English', sep: '، '
+    }
+  };
+  // Arabic uses Western digits everywhere: the -u-nu-latn extension forces the Latin numbering system.
+  const locales = { en: 'en-GB', ar: 'ar-u-nu-latn' };
+
+  function setLanguage(lang) {
+    const t = strings[lang];
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-label]').forEach(el => { el.setAttribute('aria-label', t[el.dataset.i18nLabel]); });
+    const fmt = new Intl.DateTimeFormat(locales[lang], { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' });
+    document.querySelectorAll('time[data-date]').forEach(el => { el.dateTime = el.dataset.date; el.textContent = fmt.format(new Date(el.dataset.date)); });
+    const sw = document.getElementById('lang-switch');
+    sw.textContent = t.switchTo;
+    sw.lang = lang === 'ar' ? 'en' : 'ar';
+  }
+  document.getElementById('lang-switch').addEventListener('click', () => setLanguage(document.documentElement.lang === 'ar' ? 'en' : 'ar'));
+  setLanguage(new URLSearchParams(location.search).get('lang') === 'ar' ? 'ar' : 'en');
+</script>
+</body>
+</html>

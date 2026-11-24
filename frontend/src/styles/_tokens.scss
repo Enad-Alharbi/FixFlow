@@ -1,0 +1,115 @@
+// FixFlow design tokens as CSS custom properties (runtime: they change with language and plane).
+// The single source of every colour, size, and timing used in component styles.
+// Spec and rationale: docs/design/design-direction.md §4–5 and §8.
+
+:root {
+  // ---- Colour: surfaces and text ----
+  --color-page: #f7f8f6; // paper
+  --color-surface: #fff;
+  --color-text: #1b2a4a; // ink, 14.2:1 on white
+  --color-text-muted: #4e5866; // 7.2:1 on white, 6.8:1 on paper
+  --color-border: #d5dae1; // rule
+  --color-border-soft: #e3e7ec;
+  --color-accent: #005eb8; // safety blue: links, focus, primary actions
+  --color-accent-hover: #004c96;
+  --color-on-accent: #fff;
+  --color-highlight: #f2c400; // canary
+  --color-danger: #c4221a;
+  --color-on-danger: #fff;
+
+  // ---- Colour: Control Panel ----
+  --color-chrome-platform: #1a1a1a; // tool black
+  --color-on-chrome-platform: #fff;
+  --color-platform-tag: #ffc20e; // safety yellow, 10.8:1 with tool black
+
+  // ---- Colour: request status (band background / text on band) ----
+  --status-submitted-bg: #fff;
+  --status-submitted-fg: #1b2a4a; // drawn with an ink outline
+  --status-assigned-bg: #005eb8;
+  --status-assigned-fg: #fff;
+  --status-in-progress-bg: #ffc20e;
+  --status-in-progress-fg: #1b2a4a;
+  --status-resolved-bg: #007a43;
+  --status-resolved-fg: #fff;
+  --status-closed-bg: #1b2a4a;
+  --status-closed-fg: #fff;
+  --status-rejected-bg: #c4221a;
+  --status-rejected-fg: #fff;
+  --status-cancelled-bg: #6b7280;
+  --status-cancelled-fg: #fff;
+
+  // ---- Colour: priority markers ----
+  --priority-low: #a0a8b3;
+  --priority-medium: #f2c400;
+  --priority-high: #e8770e;
+  --priority-critical: #c4221a;
+
+  // ---- Spacing (4px base) ----
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 2.5rem;
+  --space-9: 3rem;
+  --space-10: 3.5rem;
+  --space-11: 4rem;
+  --space-12: 5rem;
+
+  // ---- Shape ----
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-round: 50%;
+  --tag-chamfer: 24px;
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+  --focus-ring-width: 2px;
+
+  // ---- Typography ----
+  // Arabic glyphs look larger than Latin ones at the same size, so Arabic scales everything down.
+  --font-scale: 1;
+  --font-display: 'Barlow Semi Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-numeric: 'Barlow', sans-serif; // IDs, times, phone numbers: always Western digits
+  --fs-xs: calc(0.75rem * var(--font-scale));
+  --fs-sm: calc(0.875rem * var(--font-scale));
+  --fs-md: calc(1rem * var(--font-scale));
+  --fs-lg: calc(1.125rem * var(--font-scale));
+  --fs-xl: calc(1.25rem * var(--font-scale));
+  --fs-2xl: calc(1.5rem * var(--font-scale));
+  --fs-3xl: calc(1.875rem * var(--font-scale));
+  --fs-4xl: calc(2.25rem * var(--font-scale));
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --leading-body: 1.5;
+  --leading-heading: 1.15;
+
+  // ---- Elevation (flat by default; overlays only) ----
+  --shadow-overlay: 0 8px 24px rgb(27 42 74 / 14%), 0 2px 6px rgb(27 42 74 / 8%);
+
+  // ---- Motion ----
+  --dur-instant: 0.01ms; // reduced motion: effectively no animation, but transitionend still fires
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  // ---- Layers ----
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-toast: 400;
+}
+
+html:lang(ar) {
+  --font-scale: 0.88;
+  --font-display: 'Noto Kufi Arabic', 'Barlow Semi Condensed', sans-serif;
+  --font-body: 'Noto Kufi Arabic', 'Barlow', sans-serif;
+  --leading-body: 1.75;
+  --leading-heading: 1.5;
+}
