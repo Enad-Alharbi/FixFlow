@@ -1,0 +1,21 @@
+<main>
+  <h1>FixFlow — system status</h1>
+
+  <p role="status">
+    @if (health.isLoading()) {
+      Checking the API…
+    } @else if (health.error()) {
+      @if (errorStatus(); as status) {
+        API answered but is not ready (HTTP {{ status }}).
+      } @else {
+        API is unreachable.
+      }
+    } @else {
+      API and database: {{ health.value() }}
+    }
+  </p>
+
+  <button type="button" (click)="health.reload()" [disabled]="health.isLoading()">
+    Check again
+  </button>
+</main>
