@@ -1,5 +1,6 @@
 using FixFlow.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,9 @@ builder.Services.AddProblemDetails(options =>
 // --- Health: live = the process answers; ready = it can also reach the database ---
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<FixFlowDbContext>("database", tags: ["ready"]);
+// EF's retry-on-failure would keep a failing check retrying for minutes; a probe must answer quickly.
+builder.Services.Configure<HealthCheckServiceOptions>(options =>
+    options.Registrations.Single(r => r.Name == "database").Timeout = TimeSpan.FromSeconds(5));
 
 // --- CORS: only the origins listed in configuration may call the API from a browser ---
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];

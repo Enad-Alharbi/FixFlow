@@ -37,6 +37,14 @@ services:
       ConnectionStrings__Default: "Server=database,1433;Database=FixFlow;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
     ports:
       - "127.0.0.1:8080:8080"
+    healthcheck:
+      # "Healthy" once the API answers. Without this, Compose calls it ready while it is still compiling.
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 90s
+      start_interval: 2s
     depends_on:
       database:
         condition: service_healthy
