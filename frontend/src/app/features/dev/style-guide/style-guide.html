@@ -1,0 +1,117 @@
+<article *transloco="let t; prefix: 'dev'" class="guide">
+  <header>
+    <h1>{{ t('title') }}</h1>
+    <p class="intro">{{ t('intro') }}</p>
+  </header>
+
+  <section aria-labelledby="sg-colors">
+    <h2 id="sg-colors">{{ t('colors') }}</h2>
+    <ul class="swatches">
+      @for (token of colors; track token) {
+        <li>
+          <span class="swatch" [style.background]="'var(--' + token + ')'"></span>
+          <code dir="ltr">--{{ token }}</code>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="sg-status">
+    <h2 id="sg-status">{{ t('statuses') }}</h2>
+    <div class="row">
+      @for (status of statuses; track status) {
+        <app-status-badge [status]="status" />
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="sg-priority">
+    <h2 id="sg-priority">{{ t('priorities') }}</h2>
+    <div class="row">
+      @for (priority of priorities; track priority) {
+        <app-priority [priority]="priority" />
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="sg-buttons">
+    <h2 id="sg-buttons">{{ t('buttons') }}</h2>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <td></td>
+          <th scope="col">{{ t('state.normal') }}</th>
+          <th scope="col">{{ t('state.disabled') }}</th>
+          <th scope="col">{{ t('state.loading') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (variant of variants; track variant) {
+          <tr>
+            <th scope="row">
+              <code dir="ltr">{{ variant }}</code>
+            </th>
+            <td>
+              <button appButton [variant]="variant" type="button">
+                @if (variant === 'primary') {
+                  <tabler-icon [icon]="icons.tool" aria-hidden="true" />
+                }
+                {{ t('variant.' + variant) }}
+              </button>
+            </td>
+            <td>
+              <button appButton [variant]="variant" type="button" disabled>
+                {{ t('variant.' + variant) }}
+              </button>
+            </td>
+            <td>
+              <button appButton [variant]="variant" type="button" loading>
+                {{ t('variant.' + variant) }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="sg-type">
+    <h2 id="sg-type">{{ t('typography') }}</h2>
+    <ul class="type-scale">
+      @for (size of typeScale; track size) {
+        <li>
+          <code dir="ltr">--fs-{{ size }}</code>
+          <span [style.font-size]="'var(--fs-' + size + ')'">{{ t('typeSample') }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="sg-spacing">
+    <h2 id="sg-spacing">{{ t('spacing') }}</h2>
+    <ul class="spacing">
+      @for (step of spacing; track step) {
+        <li>
+          <code dir="ltr">--space-{{ step }}</code>
+          <span class="bar" [style.inline-size]="'var(--space-' + step + ')'"></span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="sg-icons">
+    <h2 id="sg-icons">{{ t('icons') }}</h2>
+    <p class="note">{{ t('iconsNote') }}</p>
+    <div class="row">
+      <button appButton variant="ghost" type="button">
+        <tabler-icon class="icon-mirror" [icon]="icons.back" aria-hidden="true" />{{ t('back') }}
+      </button>
+      <button appButton variant="ghost" type="button">
+        {{ t('next') }}<tabler-icon class="icon-mirror" [icon]="icons.next" aria-hidden="true" />
+      </button>
+      <span class="icon-sample"><tabler-icon [icon]="icons.search" aria-hidden="true" /></span>
+      <span class="icon-sample"><tabler-icon [icon]="icons.check" aria-hidden="true" /></span>
+      <span class="icon-sample"><tabler-icon [icon]="icons.tool" aria-hidden="true" /></span>
+    </div>
+  </section>
+</article>

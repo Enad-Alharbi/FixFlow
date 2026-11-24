@@ -29,6 +29,8 @@
     "@fontsource/barlow-semi-condensed": "5.3.0",
     "@fontsource/noto-kufi-arabic": "5.3.0",
     "@jsverse/transloco": "8.4.0",
+    "@tabler/icons": "3.52.0",
+    "@tabler/icons-angular": "3.52.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

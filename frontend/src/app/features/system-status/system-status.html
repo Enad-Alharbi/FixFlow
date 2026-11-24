@@ -19,7 +19,7 @@
     <p class="checked">{{ t('checkedAt', { time: (time | localDate: 'time') }) }}</p>
   }
 
-  <button type="button" (click)="health.reload()" [disabled]="health.isLoading()">
-    {{ t('checkAgain') }}
+  <button appButton type="button" (click)="health.reload()" [loading]="health.isLoading()">
+    <tabler-icon [icon]="refreshIcon" aria-hidden="true" />{{ t('checkAgain') }}
   </button>
 </section>

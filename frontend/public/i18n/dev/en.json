@@ -1,0 +1,25 @@
+{
+  "title": "Style guide",
+  "intro": "Every design token and UI primitive in one place. Switch the language to check Arabic and right-to-left. Development builds only.",
+  "colors": "Colours",
+  "statuses": "Request status",
+  "priorities": "Priority",
+  "typography": "Typography",
+  "typeSample": "Air conditioner not cooling in room 204",
+  "spacing": "Spacing",
+  "buttons": "Buttons",
+  "icons": "Icons",
+  "iconsNote": "Directional icons mirror in Arabic; universal icons don't.",
+  "variant": {
+    "primary": "Start work",
+    "secondary": "Add note",
+    "ghost": "Cancel"
+  },
+  "state": {
+    "normal": "Normal",
+    "disabled": "Disabled",
+    "loading": "Loading"
+  },
+  "back": "Back to requests",
+  "next": "Next request"
+}

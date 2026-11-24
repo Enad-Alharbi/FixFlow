@@ -1,0 +1,82 @@
+:host {
+  --btn-bg: var(--color-surface);
+  --btn-fg: var(--color-text);
+  --btn-border: var(--color-border);
+  --btn-bg-hover: var(--color-surface);
+  --btn-border-hover: var(--color-text-muted);
+
+  // Containing block for the visually-hidden "Loading…" text, so it can't escape a scrolling parent.
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--space-9); // 48px: comfortable touch target
+  padding-inline: var(--space-5);
+  border: var(--border-width) solid var(--btn-border);
+  border-radius: var(--radius-md);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition-property: background-color, border-color, transform;
+  transition-duration: var(--dur-fast);
+  transition-timing-function: var(--ease-out);
+}
+
+:host(.btn-primary) {
+  --btn-bg: var(--color-accent);
+  --btn-fg: var(--color-on-accent);
+  --btn-border: var(--color-accent);
+  --btn-bg-hover: var(--color-accent-hover);
+  --btn-border-hover: var(--color-accent-hover);
+}
+
+:host(.btn-ghost) {
+  --btn-bg: transparent;
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-page);
+  --btn-border-hover: transparent;
+}
+
+:host(:hover) {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+}
+
+:host(:active) {
+  transform: translateY(var(--border-width));
+}
+
+// Disabled: no opacity (it lowers text contrast unpredictably); a flat muted look instead.
+:host(:disabled) {
+  --btn-bg: var(--color-border-soft);
+  --btn-bg-hover: var(--color-border-soft);
+  --btn-fg: var(--color-text-muted);
+  --btn-border: var(--color-border-soft);
+  --btn-border-hover: var(--color-border-soft);
+
+  cursor: not-allowed;
+  transform: none;
+}
+
+:host(.loading) {
+  cursor: progress;
+  pointer-events: none;
+}
+
+.spinner {
+  animation-name: spin;
+  animation-duration: calc(var(--dur-slow) * 3);
+  animation-timing-function: var(--ease-linear);
+  animation-iteration-count: infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

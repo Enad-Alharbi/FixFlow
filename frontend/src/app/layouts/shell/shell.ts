@@ -15,7 +15,13 @@ interface NavItem {
  * Paths are absolute so links work from any child route.
  */
 const NAV: Record<Plane, NavItem[]> = {
-  tenant: [{ path: '/', labelKey: 'nav.systemStatus' }],
+  tenant: [
+    { path: '/', labelKey: 'nav.systemStatus' },
+    // Development builds only (same switch as the route in app.routes.ts).
+    ...(typeof ngDevMode === 'undefined' || ngDevMode
+      ? [{ path: '/dev/style-guide', labelKey: 'nav.styleGuide' }]
+      : []),
+  ],
   platform: [{ path: '/platform', labelKey: 'nav.systemStatus' }],
 };
 

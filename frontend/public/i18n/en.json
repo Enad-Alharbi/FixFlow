@@ -14,6 +14,26 @@
     "platform": "Platform"
   },
   "nav": {
-    "systemStatus": "System status"
+    "systemStatus": "System status",
+    "styleGuide": "Style guide"
+  },
+  "status": {
+    "submitted": "Submitted",
+    "assigned": "Assigned",
+    "inProgress": "In progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "priority": {
+    "label": "Priority",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  },
+  "common": {
+    "loading": "Loading…"
   }
 }

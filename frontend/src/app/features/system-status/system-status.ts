@@ -2,11 +2,13 @@ import { Component, computed, linkedSignal } from '@angular/core';
 import { HttpErrorResponse, httpResource } from '@angular/common/http';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { environment } from '../../../environments/environment';
+import { IconRefresh, TablerIconComponent } from '@tabler/icons-angular';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
+import { Button } from '../../shared/ui/button/button';
 
 @Component({
   selector: 'app-system-status',
-  imports: [TranslocoDirective, LocalDatePipe],
+  imports: [TranslocoDirective, LocalDatePipe, Button, TablerIconComponent],
   templateUrl: './system-status.html',
   styles: `
     section {
@@ -20,12 +22,14 @@ import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
       font-size: var(--fs-sm);
     }
 
-    button {
+    [appButton] {
       justify-self: start;
     }
   `,
 })
 export class SystemStatus {
+  protected readonly refreshIcon = IconRefresh;
+
   // Calls GET /health/ready, which reports "Healthy" only when the API can also reach SQL Server.
   protected readonly health = httpResource.text(() => `${environment.apiUrl}/health/ready`);
 

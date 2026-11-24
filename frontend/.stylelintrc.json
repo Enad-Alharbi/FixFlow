@@ -2,6 +2,12 @@
   "extends": ["stylelint-config-standard-scss", "stylelint-plugin-logical-css/configs/recommended"],
   "plugins": ["stylelint-declaration-strict-value"],
   "rules": {
+    "property-disallowed-list": [
+      ["transition", "animation"],
+      {
+        "message": "Use the longhands (transition-duration, animation-duration, …) so timings can be checked against tokens."
+      }
+    ],
     "scale-unlimited/declaration-strict-value": [
       [
         "/color$/",
@@ -17,7 +23,7 @@
         "box-shadow",
         "/^(margin|padding)/",
         "/^(gap|row-gap|column-gap)$/",
-        "/^transition/"
+        "/^(transition|animation)-(duration|delay|timing-function)$/"
       ],
       {
         "ignoreValues": [

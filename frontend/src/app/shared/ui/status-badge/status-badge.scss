@@ -1,0 +1,51 @@
+// Colours come from the status tokens; [data-status] picks the pair.
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-strong) solid var(--band-bg);
+  background: var(--band-bg);
+  color: var(--band-fg);
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+:host([data-status='submitted']) {
+  --band-bg: var(--status-submitted-bg);
+  --band-fg: var(--status-submitted-fg);
+
+  border-color: var(--status-submitted-fg); // white band needs its ink outline
+}
+
+:host([data-status='assigned']) {
+  --band-bg: var(--status-assigned-bg);
+  --band-fg: var(--status-assigned-fg);
+}
+
+:host([data-status='inProgress']) {
+  --band-bg: var(--status-in-progress-bg);
+  --band-fg: var(--status-in-progress-fg);
+}
+
+:host([data-status='resolved']) {
+  --band-bg: var(--status-resolved-bg);
+  --band-fg: var(--status-resolved-fg);
+}
+
+:host([data-status='closed']) {
+  --band-bg: var(--status-closed-bg);
+  --band-fg: var(--status-closed-fg);
+}
+
+:host([data-status='rejected']) {
+  --band-bg: var(--status-rejected-bg);
+  --band-fg: var(--status-rejected-fg);
+}
+
+:host([data-status='cancelled']) {
+  --band-bg: var(--status-cancelled-bg);
+  --band-fg: var(--status-cancelled-fg);
+}

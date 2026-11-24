@@ -33,6 +33,33 @@ textarea {
   color: inherit;
 }
 
+// Icons (Tabler, via <tabler-icon>) scale with the surrounding text and inherit its colour.
+tabler-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+
+  svg {
+    inline-size: 1.25em;
+    block-size: 1.25em;
+  }
+}
+
+// Directional icons (back/next arrows, chevrons in paths) point the other way in Arabic.
+// Universal icons (search, check, tool, settings) never get this class.
+[dir='rtl'] .icon-mirror {
+  transform: scaleX(-1);
+}
+
+// Text for screen readers only (e.g. "Loading…" next to a spinner).
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 :focus-visible {
   outline: var(--focus-ring-width) solid var(--color-accent);
   outline-offset: var(--focus-ring-width);

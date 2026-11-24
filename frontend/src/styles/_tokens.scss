@@ -100,6 +100,7 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-linear: linear; // continuous motion only (spinners)
 
   // ---- Layers ----
   --z-dropdown: 100;

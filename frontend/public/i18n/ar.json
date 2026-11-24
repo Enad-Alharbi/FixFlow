@@ -14,6 +14,26 @@
     "platform": "المنصة"
   },
   "nav": {
-    "systemStatus": "حالة النظام"
+    "systemStatus": "حالة النظام",
+    "styleGuide": "دليل التصميم"
+  },
+  "status": {
+    "submitted": "مقدّم",
+    "assigned": "تم الإسناد",
+    "inProgress": "قيد التنفيذ",
+    "resolved": "تم الحل",
+    "closed": "مغلق",
+    "rejected": "مرفوض",
+    "cancelled": "ملغى"
+  },
+  "priority": {
+    "label": "الأولوية",
+    "low": "منخفضة",
+    "medium": "متوسطة",
+    "high": "عالية",
+    "critical": "حرجة"
+  },
+  "common": {
+    "loading": "جارٍ التحميل…"
   }
 }
