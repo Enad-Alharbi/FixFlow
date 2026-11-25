@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using FixFlow.Api.Features.Auth;
 using FixFlow.Api.Features.Platform;
 using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
@@ -9,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 namespace FixFlow.Api.Features.Tenants;
 
 public partial class TenantService(
-    FixFlowDbContext db, IUserManagementService userManagement, IPlatformAudit audit, TimeProvider time) : ITenantService
+    FixFlowDbContext db, IUserManagementService userManagement, IPlatformAudit audit, IAccessStatus access, TimeProvider time)
+    : ITenantService
 {
     /// <summary>The tenant lifecycle (CLAUDE.md §9.4), in one place: which statuses each action may start from.</summary>
     private static readonly Dictionary<TenantStatusAction, TenantStatus[]> AllowedFrom = new()
@@ -168,6 +170,7 @@ public partial class TenantService(
         tenant.UpdatedAt = time.GetUtcNow();
         audit.Record($"tenant.{ActionName(action)}", "Tenant", tenant.Id, tenant.Id, before, new { Status = tenant.Status.ToString() });
         await db.SaveChangesAsync(cancellationToken);
+        await access.ForgetTenantAsync(tenant.Id, cancellationToken); // existing access tokens stop (or work again) now
 
         // Suspended or archived: end every session now. Refresh is refused anyway, but revoking makes it explicit.
         if (tenant.Status != TenantStatus.Active)

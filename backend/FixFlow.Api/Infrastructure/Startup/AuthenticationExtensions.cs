@@ -30,6 +30,16 @@ public static class AuthenticationExtensions
                     RoleClaimType = FixFlowClaims.Role,
                     ClockSkew = TimeSpan.FromSeconds(30), // default is 5 minutes, a third of the token's life
                 };
+                // D17: a valid signature is not enough; the user and tenant must still be allowed in right now.
+                bearer.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var status = context.HttpContext.RequestServices.GetRequiredService<IAccessStatus>();
+                        if (!await status.IsAllowedAsync(context.Principal!, context.HttpContext.RequestAborted))
+                            context.Fail("Access revoked."); // 401: the SPA refreshes, and refresh explains why
+                    },
+                };
             });
 
         AuthPolicies.Add(services.AddAuthorizationBuilder());

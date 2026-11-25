@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FixFlow.Api.Features.Auth;
 using FixFlow.Api.Features.Platform;
 using FixFlow.Api.Infrastructure.Data;
 using FixFlow.Api.Infrastructure.Http;
@@ -9,7 +10,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 namespace FixFlow.Api.Features.Users;
 
 public class UserManagementService(
-    UserManager<ApplicationUser> users, FixFlowDbContext db, IPlatformAudit audit, TimeProvider time) : IUserManagementService
+    UserManager<ApplicationUser> users, FixFlowDbContext db, IPlatformAudit audit, IAccessStatus access, TimeProvider time)
+    : IUserManagementService
 {
     // EF's own SQL-Server-friendly sequential GUIDs, generated up front so the audit entry can name the new user.
     private static readonly SequentialGuidValueGenerator Ids = new();
@@ -198,9 +200,9 @@ public class UserManagementService(
 
         audit.Record(action, "User", user.Id, tenantId, before, after);
         await db.SaveChangesAsync(cancellationToken);
+        access.Forget(user.Id); // the per-request check (D17) sees the change on the user's next request
 
         // Refresh is refused for inactive/deleted users anyway; revoking makes "signed out everywhere" explicit.
-        // Access tokens already issued live up to 15 minutes until the per-request check (step 4c, D17).
         if (endSessions)
             await db.RefreshTokens.Where(t => t.UserId == user.Id && t.RevokedAt == null)
                 .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, time.GetUtcNow()), cancellationToken);
