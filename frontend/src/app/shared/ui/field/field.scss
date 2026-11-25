@@ -1,0 +1,68 @@
+// Unencapsulated (see field.ts): every rule is scoped under app-field.
+// minmax(0, 1fr): an input's built-in width (~20 characters) is far wider in Noto Kufi than in Barlow;
+// an "auto" column would grow to it and push Arabic forms off a phone screen.
+app-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+app-field .field-label {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+}
+
+app-field .field-control {
+  display: flex;
+  gap: var(--space-2);
+}
+
+app-field .field-input {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: var(--space-9); // 48px touch target
+  padding-inline: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-md); // 16px+ keeps iOS from zooming in on focus
+  transition-property: border-color;
+  transition-duration: var(--dur-fast);
+  transition-timing-function: var(--ease-out);
+
+  &:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  // Same flat muted look as the disabled button (no opacity: it lowers contrast unpredictably).
+  &:disabled {
+    border-color: var(--color-border-soft);
+    background: var(--color-border-soft);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger);
+    border-width: var(--border-width-strong);
+  }
+}
+
+app-field .field-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+// Icon + text, so the error isn't signalled by colour alone.
+app-field .field-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--color-danger);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}

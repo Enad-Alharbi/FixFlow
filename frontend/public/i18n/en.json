@@ -11,7 +11,8 @@
   "shell": {
     "skipToContent": "Skip to content",
     "mainNav": "Main",
-    "platform": "Platform"
+    "platform": "Platform",
+    "signOut": "Sign out"
   },
   "nav": {
     "systemStatus": "System status",
@@ -35,5 +36,45 @@
   },
   "common": {
     "loading": "Loading…"
+  },
+  "titles": {
+    "signIn": "Sign in",
+    "systemStatus": "System status",
+    "styleGuide": "Style guide"
+  },
+  "passwordRules": {
+    "length": "{{min}}–{{max}} characters",
+    "upper": "An uppercase letter (A–Z)",
+    "lower": "A lowercase letter (a–z)",
+    "digit": "A number (0–9)",
+    "special": "A special character (e.g. ! @ # -)",
+    "noOuterSpaces": "No space at the start or end",
+    "met": "met",
+    "notMet": "not met"
+  },
+  "errors": {
+    "auth": {
+      "invalid_credentials": "The email, username, or password is incorrect.",
+      "account_locked": "Your account is temporarily locked. Try again after {{until}} or contact your supervisor.",
+      "account_disabled": "Your account is deactivated. Contact your supervisor.",
+      "session_expired": "Your session has ended. Please sign in again.",
+      "unauthenticated": "Please sign in.",
+      "forbidden": "You don't have permission to do this."
+    },
+    "tenant": {
+      "suspended": "Your organization's access is suspended. Contact your administrator.",
+      "archived": "Your organization's account is archived. Contact your administrator."
+    },
+    "validation": {
+      "failed": "Some fields are missing or invalid."
+    },
+    "http": {
+      "too_many_requests": "Too many attempts. Wait a minute and try again."
+    },
+    "server": {
+      "error": "Something went wrong on our side. Please try again."
+    },
+    "network": "Can't reach FixFlow. Check your connection and try again.",
+    "unknown": "Something went wrong. Please try again."
   }
 }

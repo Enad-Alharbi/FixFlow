@@ -1,6 +1,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { AuthService } from '../auth/auth.service';
 import { LanguageService } from './language.service';
 import { LocalDatePipe } from './local-date.pipe';
 import { provideTestTranslations } from './testing';
@@ -83,5 +84,37 @@ describe('LocalDatePipe', () => {
 
     expect(english).toContain('Nov');
     expect(arabic).not.toBe(english);
+  });
+
+  it("shows times in the signed-in user's tenant time zone, whatever the browser's zone", async () => {
+    TestBed.overrideProvider(AuthService, {
+      useValue: { user: () => ({ tenant: { timeZone: 'Asia/Riyadh' } }) }, // UTC+3, no daylight saving
+    });
+    await TestBed.inject(LanguageService).use('en');
+
+    expect(TestBed.inject(LocalDatePipe).transform(morning, 'time')).toBe('08:12'); // 05:12 UTC
+  });
+});
+
+describe('LanguageService.init with a tenant default', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({ providers: [provideTestTranslations()] });
+  });
+
+  it("uses the tenant's default language when the user has made no choice on this device", async () => {
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('en-US');
+
+    await TestBed.inject(LanguageService).init('ar');
+
+    expect(document.documentElement.lang).toBe('ar');
+  });
+
+  it("keeps the user's own saved choice over the tenant default", async () => {
+    localStorage.setItem('fixflow.language', 'en');
+
+    await TestBed.inject(LanguageService).init('ar');
+
+    expect(document.documentElement.lang).toBe('en');
   });
 });

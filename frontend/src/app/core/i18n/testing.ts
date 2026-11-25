@@ -1,6 +1,8 @@
 import { provideTranslocoScope, TranslocoTestingModule } from '@jsverse/transloco';
 import en from '../../../../public/i18n/en.json';
 import ar from '../../../../public/i18n/ar.json';
+import authEn from '../../../../public/i18n/auth/en.json';
+import authAr from '../../../../public/i18n/auth/ar.json';
 import systemStatusEn from '../../../../public/i18n/system-status/en.json';
 import systemStatusAr from '../../../../public/i18n/system-status/ar.json';
 import { FIXFLOW_TRANSLOCO_CONFIG } from './transloco.config';
@@ -12,6 +14,8 @@ export function provideTestTranslations() {
       langs: {
         en,
         ar,
+        'auth/en': authEn,
+        'auth/ar': authAr,
         'system-status/en': systemStatusEn,
         'system-status/ar': systemStatusAr,
       },
@@ -19,5 +23,6 @@ export function provideTestTranslations() {
       preloadLangs: true,
     }).providers ?? [],
     provideTranslocoScope('system-status'),
+    provideTranslocoScope('auth'),
   ];
 }

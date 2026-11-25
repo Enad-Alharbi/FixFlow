@@ -109,8 +109,49 @@
   }
 }
 
+.tenant-name {
+  color: var(--bar-muted);
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+}
+
 .bar-end {
   margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.user-name {
+  color: var(--bar-muted);
+  font-size: var(--fs-sm);
+
+  // Phones: the bar is tight; the name is a convenience, sign-out is essential.
+  display: none;
+
+  @include bp.from(md) {
+    display: inline;
+  }
+}
+
+// A bar-coloured button (the shared button's colours don't follow the black Control Panel bar).
+.bar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-block-size: var(--space-9);
+  padding-inline: var(--space-3);
+  border: var(--border-width) solid var(--bar-muted);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--bar-fg);
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--bar-fg);
+  }
 }
 
 // The shell owns the page container, so every page lines up with the top bar.

@@ -97,3 +97,9 @@ section:has(.matrix) {
   font-size: var(--fs-2xl);
   display: inline-flex;
 }
+
+.field-samples {
+  display: grid;
+  gap: var(--space-5);
+  max-inline-size: 24rem;
+}

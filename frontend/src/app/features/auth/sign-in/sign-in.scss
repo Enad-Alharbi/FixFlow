@@ -1,0 +1,109 @@
+@use 'styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 28rem;
+}
+
+// Frame + tag: the 1px "border" is the frame showing around the clipped tag, so it follows the chamfer.
+// clip-path has no logical form, so the chamfer side is mirrored for RTL explicitly.
+.tag-frame {
+  padding: var(--border-width);
+  background: var(--color-border);
+  clip-path: polygon(
+    var(--tag-chamfer) 0,
+    100% 0,
+    100% 100%,
+    var(--tag-chamfer) 100%,
+    0 calc(100% - var(--tag-chamfer)),
+    0 var(--tag-chamfer)
+  );
+}
+
+:host-context([dir='rtl']) .tag-frame {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--tag-chamfer)) 0,
+    100% var(--tag-chamfer),
+    100% calc(100% - var(--tag-chamfer)),
+    calc(100% - var(--tag-chamfer)) 100%,
+    0 100%
+  );
+}
+
+.tag {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); // shrink with the screen (see app-field in field.scss)
+  gap: var(--space-6);
+  padding: var(--space-7) var(--space-5);
+  padding-inline-start: var(--space-10); // room for the punched hole
+  background: var(--color-surface);
+  clip-path: inherit;
+
+  @include bp.from(md) {
+    padding: var(--space-8) var(--space-7);
+    padding-inline-start: var(--space-11);
+  }
+}
+
+.hole {
+  position: absolute;
+  inset-inline-start: var(--space-4);
+  inset-block-start: 50%;
+  inline-size: var(--space-4);
+  block-size: var(--space-4);
+  margin-block-start: calc(var(--space-4) / -2);
+  border: var(--focus-ring-width) solid var(--color-border);
+  border-radius: var(--radius-round);
+  background: var(--color-page);
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  line-height: var(--leading-heading);
+}
+
+.subtitle {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+}
+
+form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.reveal {
+  padding-inline: var(--space-3);
+}
+
+.alert-region:empty {
+  display: none;
+}
+
+// Icon + text on a tinted band: never colour alone.
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border-inline-start: var(--space-1) solid var(--color-danger);
+  background: var(--color-page);
+  color: var(--color-text);
+  font-size: var(--fs-sm);
+
+  tabler-icon {
+    flex: none;
+    color: var(--color-danger);
+  }
+}
+
+.submit {
+  inline-size: 100%;
+}

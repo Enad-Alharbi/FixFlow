@@ -1,0 +1,69 @@
+<ng-container *transloco="let t">
+  <!-- The approved Work tag shape: chamfered corners and a punched hole at the start edge. -->
+  <div class="tag-frame">
+    <section class="tag" aria-labelledby="sign-in-title">
+      <span class="hole" aria-hidden="true"></span>
+
+      <header>
+        <h1 id="sign-in-title">{{ t('auth.title') }}</h1>
+        <p class="subtitle">{{ t('auth.subtitle') }}</p>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <app-field
+          [label]="t('auth.login')"
+          [error]="showError('login') ? t('auth.loginRequired') : null"
+        >
+          <!-- dir="ltr": emails and usernames are Latin identifiers, even on the Arabic page. -->
+          <input
+            appInput
+            formControlName="login"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            dir="ltr"
+          />
+        </app-field>
+
+        <app-field
+          [label]="t('auth.password')"
+          [error]="showError('password') ? t('auth.passwordRequired') : null"
+        >
+          <input
+            appInput
+            formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="current-password"
+            dir="ltr"
+          />
+          <button
+            fieldEnd
+            type="button"
+            appButton
+            variant="ghost"
+            class="reveal"
+            [attr.aria-pressed]="showPassword()"
+            [attr.aria-label]="t('auth.showPassword')"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <tabler-icon [icon]="showPassword() ? icons.hide : icons.show" aria-hidden="true" />
+          </button>
+        </app-field>
+
+        <!-- Always present, so screen readers announce the message when it appears. -->
+        <div class="alert-region" role="alert">
+          @if (errorKey(); as key) {
+            <p class="alert">
+              <tabler-icon [icon]="icons.alert" aria-hidden="true" />
+              <span>{{ t(key, { until: lockoutEnd() | localDate: 'time' }) }}</span>
+            </p>
+          }
+        </div>
+
+        <button appButton variant="primary" type="submit" class="submit" [loading]="loading()">
+          {{ t('auth.submit') }}
+        </button>
+      </form>
+    </section>
+  </div>
+</ng-container>

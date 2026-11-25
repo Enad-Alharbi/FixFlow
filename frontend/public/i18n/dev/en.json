@@ -21,5 +21,11 @@
     "loading": "Loading"
   },
   "back": "Back to requests",
-  "next": "Next request"
+  "next": "Next request",
+  "fields": "Form fields",
+  "fieldLabel": "Room number",
+  "fieldHint": "As written on the door.",
+  "fieldError": "Enter a room number.",
+  "passwordChecklist": "Password checklist",
+  "passwordSample": "Try a password"
 }

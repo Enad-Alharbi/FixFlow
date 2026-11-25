@@ -1,0 +1,10 @@
+{
+  "title": "Sign in",
+  "subtitle": "Use the account your organization gave you.",
+  "login": "Email or username",
+  "password": "Password",
+  "loginRequired": "Enter your email or username.",
+  "passwordRequired": "Enter your password.",
+  "submit": "Sign in",
+  "showPassword": "Show password"
+}

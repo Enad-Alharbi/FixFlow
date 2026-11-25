@@ -7,6 +7,9 @@
 
       @if (plane() === 'platform') {
         <span class="plane-tag">{{ t('shell.platform') }}</span>
+      } @else if (auth.user()?.tenant; as tenant) {
+        <!-- Which organization you are working in. bdi: a name in the other script doesn't flip the bar. -->
+        <bdi class="tenant-name">{{ tenant.name }}</bdi>
       }
 
       <nav class="nav" [attr.aria-label]="t('shell.mainNav')">
@@ -22,7 +25,17 @@
         }
       </nav>
 
-      <app-language-switcher class="bar-end" />
+      <div class="bar-end">
+        <app-language-switcher />
+        @if (auth.user(); as user) {
+          <bdi class="user-name">{{ user.displayName }}</bdi>
+          <button type="button" class="bar-button" (click)="signOut()">
+            <tabler-icon [icon]="signOutIcon" class="icon-mirror" aria-hidden="true" />{{
+              t('shell.signOut')
+            }}
+          </button>
+        }
+      </div>
     </div>
   </header>
 

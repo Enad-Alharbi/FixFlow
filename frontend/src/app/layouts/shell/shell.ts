@@ -1,6 +1,8 @@
-import { Component, ElementRef, computed, input, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { IconLogout, TablerIconComponent } from '@tabler/icons-angular';
+import { AuthService } from '../../core/auth/auth.service';
 import { LanguageSwitcher } from '../../core/i18n/language-switcher';
 
 export type Plane = 'tenant' | 'platform';
@@ -33,17 +35,31 @@ const NAV: Record<Plane, NavItem[]> = {
  */
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoDirective, LanguageSwitcher],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    TranslocoDirective,
+    TablerIconComponent,
+    LanguageSwitcher,
+  ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
   host: { '[class.platform]': "plane() === 'platform'" },
 })
 export class Shell {
+  protected readonly auth = inject(AuthService);
+  protected readonly signOutIcon = IconLogout;
+
   readonly plane = input<Plane>('tenant');
   protected readonly nav = computed(() => NAV[this.plane()]);
   protected readonly home = computed(() => (this.plane() === 'platform' ? '/platform' : '/'));
 
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
+
+  protected signOut(): Promise<void> {
+    return this.auth.signOut();
+  }
 
   /** Skip link: move focus to the content without changing the URL (a plain #main link would re-route). */
   protected skipToMain(event: Event): void {

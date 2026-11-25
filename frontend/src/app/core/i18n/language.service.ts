@@ -26,12 +26,12 @@ export class LanguageService {
   readonly locale = computed(() => INTL_LOCALES[this.current()]);
 
   /**
-   * Picks the starting language and loads its root strings before the first render (no flash of keys).
-   * Order today: saved choice -> browser language -> English.
-   * User preference and tenant default are added in front once sign-in exists (Phase 3/5).
+   * Picks the language and loads its root strings (at startup before the first render, and again after sign-in).
+   * Order: the user's own choice (saved on this device) -> the tenant's default -> browser language -> English.
+   * A per-user preference stored on the server replaces "saved on this device" in Phase 5.
    */
-  async init(): Promise<void> {
-    await this.use(this.saved() ?? this.fromBrowser() ?? 'en', { persist: false });
+  async init(tenantDefault?: Language): Promise<void> {
+    await this.use(this.saved() ?? tenantDefault ?? this.fromBrowser() ?? 'en', { persist: false });
   }
 
   async use(language: Language, { persist = true } = {}): Promise<void> {
