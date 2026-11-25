@@ -1,5 +1,6 @@
 using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
+using FixFlow.Api.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -10,8 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // --- Database ---------------------------------------------------------------
 // The connection string comes from configuration (in Docker: the ConnectionStrings__Default env var).
 // Not validated here so `dotnet ef migrations add` works without a database; a missing value fails on first use.
-builder.Services.AddDbContext<FixFlowDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql => sql.EnableRetryOnFailure()));
+builder.Services.AddDbContext<FixFlowDbContext>((services, options) => options
+    .UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql => sql.EnableRetryOnFailure())
+    .AddInterceptors(services.GetRequiredService<TenantStampingInterceptor>()));
+
+// --- Tenancy: the current tenant comes only from the token (see TenantContext) ---
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantContext, TenantContext>();
+builder.Services.AddScoped<TenantStampingInterceptor>();
 
 // --- Identity: user store, password hashing, and the account rules from CLAUDE.md §7.4 ---
 // AddIdentityCore, not AddIdentity: the API authenticates with JWTs (Phase 3c), so no Identity cookies.
