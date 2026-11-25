@@ -76,7 +76,7 @@ AuthPolicies.Add(builder.Services.AddAuthorizationBuilder());
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.AddPolicy(AuthEndpoints.RateLimitPolicy, http => RateLimitPartition.GetFixedWindowLimiter(
+    options.AddPolicy(AuthController.RateLimitPolicy, http => RateLimitPartition.GetFixedWindowLimiter(
         http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions
         {
@@ -90,6 +90,8 @@ builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
         context.ProblemDetails.Extensions.TryAdd("code", context.ProblemDetails.Status switch
         {
+            // [ApiController] answers a missing or malformed body with 400 before our code runs.
+            StatusCodes.Status400BadRequest => "validation.failed",
             StatusCodes.Status401Unauthorized => "auth.unauthenticated",
             StatusCodes.Status403Forbidden => "auth.forbidden",
             StatusCodes.Status404NotFound => "resource.not_found",
@@ -112,11 +114,18 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 
-// API conventions: enums as strings ("Supervisor", not 3). camelCase is already the default.
-builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+// --- API: controllers (thin) calling feature services behind interfaces ---
+// JSON conventions: enums as strings ("Supervisor", not 3). camelCase is already the default.
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// "FixFlow.Api admin bootstrap|recover": run a server-side admin command and exit, without starting the web server.
+if (AdminCommands.IsAdminCommand(args))
+    return await AdminCommands.RunAsync(app.Services, app.Configuration, args, Console.Out);
 
 // Turns unhandled exceptions into a 500 ProblemDetails (details go to the log, never to the client).
 app.UseExceptionHandler();
@@ -130,6 +139,9 @@ if (app.Environment.IsDevelopment())
     // Development only: apply pending migrations at startup. Production uses a deliberate migration step.
     await using var scope = app.Services.CreateAsyncScope();
     await scope.ServiceProvider.GetRequiredService<FixFlowDbContext>().Database.MigrateAsync();
+    // Development only: demo tenants and users (skipped when Seed:DemoPassword is not set).
+    await DevSeeder.SeedAsync(scope.ServiceProvider, app.Configuration["Seed:DemoPassword"],
+        app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("FixFlow.Seed"));
 }
 
 app.UseCors();
@@ -156,6 +168,7 @@ app.Use(async (context, next) =>
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") }).AllowAnonymous();
-app.MapAuthEndpoints();
+app.MapControllers();
 
 app.Run();
+return 0;

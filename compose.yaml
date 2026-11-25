@@ -37,6 +37,8 @@ services:
       ConnectionStrings__Default: "Server=database,1433;Database=FixFlow;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
       # "__" = a nested config key (Jwt:SigningKey). The API refuses to start without a valid key.
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in .env (see .env.example)}
+      # Optional (":-" = empty if unset): without it the demo tenants and users are not seeded.
+      Seed__DemoPassword: ${SEED_DEMO_PASSWORD:-}
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:

@@ -37,7 +37,7 @@ public class AuthTests(ApiFactory factory)
         Assert.Equal("Supervisor", session.GetProperty("user").GetProperty("role").GetString());
 
         var cookie = Assert.Single(response.Headers.GetValues("Set-Cookie"));
-        Assert.StartsWith(AuthEndpoints.RefreshCookie + "=", cookie);
+        Assert.StartsWith(AuthController.RefreshCookie + "=", cookie);
         Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("secure", cookie, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("samesite=strict", cookie, StringComparison.OrdinalIgnoreCase);
@@ -149,6 +149,18 @@ public class AuthTests(ApiFactory factory)
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.Equal(code, await CodeAsync(response));
+    }
+
+    [Theory]
+    [InlineData("""{"login":"","password":"x"}""")]
+    [InlineData("""{"login":"someone"}""")]
+    [InlineData("not json")]
+    public async Task Sign_in_without_credentials_is_a_validation_error(string body)
+    {
+        var response = await _client.PostAsync("/api/auth/sign-in", new StringContent(body, System.Text.Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("validation.failed", await CodeAsync(response));
     }
 
     [Fact]
@@ -302,7 +314,7 @@ public class AuthTests(ApiFactory factory)
 
     /// <summary>"fixflow_refresh=value" from the Set-Cookie header, ready to send back in a Cookie header.</summary>
     private static string RefreshCookieOf(HttpResponseMessage response) =>
-        response.Headers.GetValues("Set-Cookie").Single(c => c.StartsWith(AuthEndpoints.RefreshCookie + "=")).Split(';')[0];
+        response.Headers.GetValues("Set-Cookie").Single(c => c.StartsWith(AuthController.RefreshCookie + "=")).Split(';')[0];
 
     private static async Task<string?> CodeAsync(HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("code").GetString();
