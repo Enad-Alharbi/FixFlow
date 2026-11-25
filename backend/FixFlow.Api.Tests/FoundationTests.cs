@@ -1,5 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
+using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 
@@ -8,7 +11,7 @@ namespace FixFlow.Api.Tests;
 [Collection("Api")]
 public class FoundationTests(ApiFactory factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = TestData.Client(factory);
 
     [Fact]
     public async Task Ready_health_check_reaches_the_database()
@@ -20,8 +23,22 @@ public class FoundationTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task Anonymous_request_to_any_api_route_needs_sign_in()
+    {
+        // Secure by default (fallback policy): anonymous callers can't even probe which routes exist.
+        var response = await _client.GetAsync("/api/does-not-exist");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
     public async Task Unknown_route_returns_problem_details_with_code()
     {
+        var user = await TestData.CreateUserAsync(factory.Services, (await TestData.CreateTenantAsync(factory.Services)).Id, UserRole.Requester);
+        var session = await (await TestData.SignInAsync(_client, user.UserName!)).Content.ReadFromJsonAsync<JsonElement>();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.GetProperty("accessToken").GetString());
+
         var response = await _client.GetAsync("/api/does-not-exist");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

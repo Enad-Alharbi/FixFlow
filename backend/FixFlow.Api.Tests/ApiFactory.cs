@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
@@ -19,8 +20,12 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         InitialCatalog = "FixFlow_Tests",
     }.ConnectionString;
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
-        builder.UseSetting("ConnectionStrings:Default", ConnectionString);
+    protected override void ConfigureWebHost(IWebHostBuilder builder) => builder
+        .UseSetting("ConnectionStrings:Default", ConnectionString)
+        // A fresh random key per test run: tests never depend on a real secret.
+        .UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)))
+        // Every test request comes from the same "IP"; the real limit is tested separately (AuthTests).
+        .UseSetting("RateLimiting:AuthPermitsPerMinute", "10000");
 
     public Task InitializeAsync() => _database.StartAsync();
 

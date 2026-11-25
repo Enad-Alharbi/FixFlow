@@ -1,4 +1,5 @@
 using System.Reflection;
+using FixFlow.Api.Features.Auth;
 using FixFlow.Api.Features.Tenants;
 using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Tenancy;
@@ -24,6 +25,7 @@ public class FixFlowDbContext : IdentityUserContext<ApplicationUser, Guid>
     protected FixFlowDbContext(DbContextOptions options, ITenantContext tenant) : base(options) => _tenant = tenant;
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     // EF reads this per query (as a SQL parameter), so one cached model serves every tenant.
     // Throws when there is no tenant, so a filtered query can never silently return all tenants' rows.

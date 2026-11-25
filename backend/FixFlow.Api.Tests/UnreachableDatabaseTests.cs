@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -16,6 +17,7 @@ public class UnreachableDatabaseTests
             builder.UseEnvironment("Testing"); // skips the Development-only startup migration
             builder.UseSetting("ConnectionStrings:Default",
                 "Server=unreachable.invalid;Database=FixFlow;User Id=sa;Password=x;TrustServerCertificate=True");
+            builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
         });
         var client = factory.CreateClient();
 
