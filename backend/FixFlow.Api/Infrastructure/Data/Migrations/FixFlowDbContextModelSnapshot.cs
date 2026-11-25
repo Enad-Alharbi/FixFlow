@@ -62,6 +62,46 @@ namespace FixFlow.Api.Infrastructure.Data.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("FixFlow.Api.Features.Platform.PlatformAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("ActorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Changes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("At");
+
+                    b.HasIndex("TenantId", "At");
+
+                    b.ToTable("PlatformAuditEntries");
+                });
+
             modelBuilder.Entity("FixFlow.Api.Features.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")

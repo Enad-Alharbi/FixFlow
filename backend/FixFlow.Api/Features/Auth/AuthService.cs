@@ -1,6 +1,7 @@
 using FixFlow.Api.Features.Tenants;
 using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
+using FixFlow.Api.Infrastructure.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +17,10 @@ public class AuthService(
 {
     private static string? _dummyHash;
 
-    public async Task<AuthResult> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
+    public async Task<Result<AuthSession>> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Login) || string.IsNullOrEmpty(request.Password))
-            return AuthResult.Fail(StatusCodes.Status400BadRequest, "validation.failed");
+            return new ServiceError(StatusCodes.Status400BadRequest, "validation.failed");
 
         // Usernames can't contain "@" (UserRules), so "@" means the login is an email.
         var login = request.Login.Trim();
@@ -29,7 +30,7 @@ public class AuthService(
         {
             // Do the same hashing work as a real check, so response time doesn't reveal whether the account exists.
             DummyPasswordCheck(request.Password);
-            return AuthResult.Fail(StatusCodes.Status401Unauthorized, "auth.invalid_credentials");
+            return new ServiceError(StatusCodes.Status401Unauthorized, "auth.invalid_credentials");
         }
 
         // Counts failures and locks after the configured number; while locked it fails even with the right password.
@@ -38,27 +39,27 @@ public class AuthService(
         {
             // shortcut: diagnostic log only; the audit log entry for lockouts comes with audit logs (Phase 12).
             logger.LogWarning("Sign-in refused: account {UserId} is locked out", user.Id);
-            return AuthResult.Fail(StatusCodes.Status401Unauthorized, "auth.account_locked",
-                new Dictionary<string, object?> { ["lockoutEnd"] = await users.GetLockoutEndDateAsync(user) });
+            return new ServiceError(StatusCodes.Status401Unauthorized, "auth.account_locked",
+                Extensions: new Dictionary<string, object?> { ["lockoutEnd"] = await users.GetLockoutEndDateAsync(user) });
         }
         if (!result.Succeeded)
-            return AuthResult.Fail(StatusCodes.Status401Unauthorized, "auth.invalid_credentials");
+            return new ServiceError(StatusCodes.Status401Unauthorized, "auth.invalid_credentials");
 
         // Status is checked only after the password, so these messages never confirm an account to a guesser.
         var tenant = user.TenantId is { } tenantId
             ? await db.Tenants.SingleAsync(t => t.Id == tenantId, cancellationToken)
             : null;
         if (BlockReason(user, tenant) is { } blocked)
-            return AuthResult.Fail(StatusCodes.Status403Forbidden, blocked);
+            return new ServiceError(StatusCodes.Status403Forbidden, blocked);
 
         user.LastSignInAt = time.GetUtcNow();
         var refresh = tokens.AddRefreshToken(user.Id, familyId: Guid.NewGuid());
         await db.SaveChangesAsync(cancellationToken); // saves the refresh token and LastSignInAt together
 
-        return AuthResult.Ok(NewSession(user, tenant, refresh));
+        return NewSession(user, tenant, refresh);
     }
 
-    public async Task<AuthResult> RefreshAsync(string? refreshToken, CancellationToken cancellationToken)
+    public async Task<Result<AuthSession>> RefreshAsync(string? refreshToken, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(refreshToken))
             return SessionExpired();
@@ -81,7 +82,7 @@ public class AuthService(
         if (BlockReason(token.User, token.User.Tenant) is { } blocked)
         {
             await RevokeFamilyAsync(token.FamilyId, now, cancellationToken);
-            return token.User.IsDeleted ? SessionExpired() : AuthResult.Fail(StatusCodes.Status403Forbidden, blocked);
+            return token.User.IsDeleted ? SessionExpired() : new ServiceError(StatusCodes.Status403Forbidden, blocked);
         }
 
         // Rotation: the presented token is spent; a new one from the same family replaces it.
@@ -91,7 +92,7 @@ public class AuthService(
         var refresh = tokens.AddRefreshToken(token.UserId, token.FamilyId);
         await db.SaveChangesAsync(cancellationToken);
 
-        return AuthResult.Ok(NewSession(token.User, token.User.Tenant, refresh));
+        return NewSession(token.User, token.User.Tenant, refresh);
     }
 
     public async Task SignOutAsync(string? refreshToken, CancellationToken cancellationToken)
@@ -134,7 +135,7 @@ public class AuthService(
         db.RefreshTokens.Where(t => t.FamilyId == familyId && t.RevokedAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, now), cancellationToken);
 
-    private static AuthResult SessionExpired() => AuthResult.Fail(StatusCodes.Status401Unauthorized, "auth.session_expired");
+    private static ServiceError SessionExpired() => new(StatusCodes.Status401Unauthorized, "auth.session_expired");
 
     private void DummyPasswordCheck(string password)
     {

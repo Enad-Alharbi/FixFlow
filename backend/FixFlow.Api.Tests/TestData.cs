@@ -81,4 +81,18 @@ public static class TestData
 
     public static Task<HttpResponseMessage> SignInAsync(HttpClient client, string login, string password = Password) =>
         client.PostAsJsonAsync("/api/auth/sign-in", new SignInRequest(login, password));
+
+    /// <summary>A client that sends this user's access token on every request.</summary>
+    public static async Task<HttpClient> ClientAsAsync(WebApplicationFactory<Program> factory, ApplicationUser user)
+    {
+        var client = Client(factory);
+        var response = await SignInAsync(client, user.UserName!);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        var session = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", session.GetProperty("accessToken").GetString());
+        return client;
+    }
+
+    /// <summary>A unique code/username fragment, so tests sharing one database never collide.</summary>
+    public static string Unique(string prefix = "t") => prefix + Guid.NewGuid().ToString("N")[..10];
 }

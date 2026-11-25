@@ -25,6 +25,10 @@ public static partial class UserRules
     [GeneratedRegex(@"^\+?[0-9]+([ -]?[0-9]+)*$")]
     public static partial Regex PhoneFormat();
 
+    /// <summary>Stored form (requirements §7): spaces and dashes removed, e.g. "+966 50-123 4567" → "+966501234567".</summary>
+    public static string? NormalizePhone(string? phone) =>
+        string.IsNullOrWhiteSpace(phone) ? null : phone.Trim().Replace(" ", "").Replace("-", "");
+
     public static bool IsValidPhone(string phone)
     {
         var digits = phone.Count(char.IsAsciiDigit);

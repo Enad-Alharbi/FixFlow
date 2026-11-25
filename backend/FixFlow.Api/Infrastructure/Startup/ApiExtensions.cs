@@ -1,5 +1,8 @@
 using System.Text.Json.Serialization;
 using FixFlow.Api.Features.Auth;
+using FixFlow.Api.Features.Platform;
+using FixFlow.Api.Features.Tenants;
+using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -56,6 +59,11 @@ public static class ApiExtensions
         // Auth
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<TokenService>();
+
+        // Platform (Control Panel)
+        services.AddScoped<IPlatformAudit, PlatformAudit>();
+        services.AddScoped<ITenantService, TenantService>();
+        services.AddScoped<IUserManagementService, UserManagementService>();
 
         return services;
     }

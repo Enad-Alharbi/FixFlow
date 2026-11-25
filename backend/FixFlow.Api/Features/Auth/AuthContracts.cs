@@ -18,13 +18,3 @@ public record AuthSession(
     string RefreshToken, DateTimeOffset RefreshTokenExpiresAt,
     MeResponse User);
 
-/// <summary>A refused auth operation: a stable error code, the HTTP status to answer with, and optional extra fields.</summary>
-public record AuthError(int Status, string Code, IReadOnlyDictionary<string, object?>? Extensions = null);
-
-/// <summary>Either a session or an error — expected failures (wrong password, locked) are results, not exceptions.</summary>
-public record AuthResult(AuthSession? Session, AuthError? Error)
-{
-    public static AuthResult Ok(AuthSession session) => new(session, null);
-    public static AuthResult Fail(int status, string code, IReadOnlyDictionary<string, object?>? extensions = null) =>
-        new(null, new AuthError(status, code, extensions));
-}
