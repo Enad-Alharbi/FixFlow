@@ -42,22 +42,30 @@ public interface IPlatformAudit
 {
     /// <returns>The added entry, so a caller whose change fails validation can detach it again.</returns>
     PlatformAuditEntry Record(string action, string targetType, Guid? targetId, Guid? tenantId, object? before = null, object? after = null);
+
+    /// <summary>The signed-in Platform Admin performing the action (e.g. for DeletedById).</summary>
+    Guid ActorId { get; }
 }
 
 public class PlatformAudit(FixFlowDbContext db, IHttpContextAccessor http, TimeProvider time) : IPlatformAudit
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    // Relaxed escaping keeps Arabic names and "+966…" readable in the stored JSON. The value is data in a database
+    // column, never written raw into HTML, so the HTML-safe default escaping buys nothing here.
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+
+    // Platform endpoints all require a signed-in Platform Admin, so the actor is always known here.
+    public Guid ActorId => Guid.Parse(http.HttpContext?.User.FindFirst(FixFlowClaims.UserId)?.Value
+        ?? throw new InvalidOperationException("Platform audit needs a signed-in actor."));
 
     public PlatformAuditEntry Record(string action, string targetType, Guid? targetId, Guid? tenantId, object? before = null, object? after = null)
     {
-        // Platform endpoints all require a signed-in Platform Admin, so the actor is always known here.
-        var actorId = Guid.Parse(http.HttpContext?.User.FindFirst(FixFlowClaims.UserId)?.Value
-            ?? throw new InvalidOperationException("Platform audit needs a signed-in actor."));
-
         var entry = new PlatformAuditEntry
         {
             At = time.GetUtcNow(),
-            ActorId = actorId,
+            ActorId = ActorId,
             Action = action,
             TargetType = targetType,
             TargetId = targetId,
