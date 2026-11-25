@@ -1,5 +1,7 @@
+using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Not validated here so `dotnet ef migrations add` works without a database; a missing value fails on first use.
 builder.Services.AddDbContext<FixFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql => sql.EnableRetryOnFailure()));
+
+// --- Identity: user store, password hashing, and the account rules from CLAUDE.md §7.4 ---
+// AddIdentityCore, not AddIdentity: the API authenticates with JWTs (Phase 3c), so no Identity cookies.
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.Password.RequiredLength = UserRules.PasswordMinLength;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireDigit = true;
+        options.Password.RequireNonAlphanumeric = true; // "special": anything except A–Z, a–z, 0–9
+        options.Password.RequiredUniqueChars = 1;
+        options.User.AllowedUserNameCharacters = UserRules.UsernameAllowedCharacters;
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<FixFlowDbContext>()
+    .AddErrorDescriber<FixFlowIdentityErrorDescriber>()
+    .AddUserValidator<UserRulesValidator>()
+    .AddPasswordValidator<PasswordRulesValidator>();
+// Lockout (attempts, duration) comes from configuration so it can change without a code change.
+// Binds the "Identity" section onto IdentityOptions (only Lockout is set there today).
+builder.Services.Configure<IdentityOptions>(builder.Configuration.GetSection("Identity"));
 
 // --- Errors: every error response is RFC 9457 ProblemDetails with a stable `code` ---
 builder.Services.AddProblemDetails(options =>
