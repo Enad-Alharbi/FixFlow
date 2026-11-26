@@ -19,7 +19,11 @@
   "state": {
     "normal": "Normal",
     "disabled": "Disabled",
-    "loading": "Loading"
+    "loading": "Loading",
+    "ok": "Active",
+    "warn": "Suspended",
+    "off": "Archived",
+    "danger": "Deleted"
   },
   "back": "Back to requests",
   "next": "Next request",
@@ -40,5 +44,6 @@
   "emptyState": "Empty state",
   "emptyMessage": "No requests yet. Report the first issue.",
   "table": "Data table and pagination",
-  "count": "Open requests"
+  "count": "Open requests",
+  "states": "State badges"
 }

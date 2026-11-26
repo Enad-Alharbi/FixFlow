@@ -1,16 +1,35 @@
 import { HttpErrorResponse, httpResource } from '@angular/common/http';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { IconAlertTriangle, IconArrowLeft, TablerIconComponent } from '@tabler/icons-angular';
+import { firstValueFrom } from 'rxjs';
+import {
+  IconAlertTriangle,
+  IconArrowLeft,
+  IconUserPlus,
+  TablerIconComponent,
+} from '@tabler/icons-angular';
 import { apiErrorCode, ApiErrors } from '../../../core/http/api-error';
 import { serverFieldCodes } from '../../../core/forms/coded';
 import { LocalDatePipe } from '../../../core/i18n/local-date.pipe';
 import { Button } from '../../../shared/ui/button/button';
-import { Confirm } from '../../../shared/ui/dialog/dialog';
+import { Confirm, dialogOptions } from '../../../shared/ui/dialog/dialog';
 import { Toasts } from '../../../shared/ui/toast/toast';
 import { TenantSettingsFields, createTenantSettingsForm } from './tenant-settings-fields';
+import { CreateUserData, CreateUserDialog } from '../users/user-dialogs';
+import { UserTable } from '../users/user-table';
+import { UserDetails } from '../users/users.api';
 import { TenantStatusBadge } from './tenant-status-badge';
 import { TENANTS_URL, TenantAction, TenantDetails, TenantStatus, TenantsApi } from './tenants.api';
 
@@ -38,7 +57,7 @@ const ACTIONS: Record<TenantStatus, StatusAction[]> = {
   ],
 };
 
-/** One tenant: its facts, its settings (editable), and its lifecycle actions. Users join this page in step 4e. */
+/** One tenant: its facts, its settings (editable), its lifecycle actions, and its users. */
 @Component({
   selector: 'app-tenant-detail',
   imports: [
@@ -49,6 +68,7 @@ const ACTIONS: Record<TenantStatus, StatusAction[]> = {
     Button,
     TenantSettingsFields,
     TenantStatusBadge,
+    UserTable,
   ],
   templateUrl: './tenant-detail.html',
   styleUrl: './tenant-detail.scss',
@@ -56,6 +76,7 @@ const ACTIONS: Record<TenantStatus, StatusAction[]> = {
 export class TenantDetail {
   private readonly api = inject(TenantsApi);
   private readonly confirm = inject(Confirm);
+  private readonly dialog = inject(Dialog);
   private readonly toasts = inject(Toasts);
   private readonly transloco = inject(TranslocoService);
   protected readonly apiErrors = inject(ApiErrors);
@@ -77,13 +98,18 @@ export class TenantDetail {
   protected readonly conflict = computed(
     () => apiErrorCode(this.error()) === 'concurrency.conflict',
   );
-  protected readonly icons = { back: IconArrowLeft, alert: IconAlertTriangle };
+  protected readonly icons = { back: IconArrowLeft, alert: IconAlertTriangle, add: IconUserPlus };
+  private readonly userTable = viewChild(UserTable);
+  private readonly version = computed(() =>
+    this.tenant.hasValue() ? this.tenant.value().rowVersion : null,
+  );
 
   constructor() {
-    // Whenever a fresh copy arrives (first load, after saving, after Reload), the form shows exactly that copy.
+    // Whenever a new VERSION arrives (first load, after saving, after Reload), the form shows exactly that copy.
+    // Keyed on rowVersion, so a local tweak (the user count) never wipes the admin's unsaved edits.
     effect(() => {
-      if (!this.tenant.hasValue()) return;
-      const t = this.tenant.value();
+      if (!this.version()) return;
+      const t = untracked(() => this.tenant.value()!);
       this.form.reset({
         name: t.name,
         defaultLanguage: t.defaultLanguage,
@@ -167,5 +193,21 @@ export class TenantDetail {
     if (error instanceof HttpErrorResponse && error.status === 400)
       return 'errors.validation.failed';
     return this.apiErrors.key(error);
+  }
+
+  /** The shared Create User modal, for this tenant; any tenant role (D1), never the platform role. */
+  protected async createUser(): Promise<void> {
+    const title = this.transloco.translate('platform.users.newIn', {
+      tenant: this.tenant.value()?.name,
+    });
+    const ref = this.dialog.open<UserDetails, CreateUserData>(
+      CreateUserDialog,
+      dialogOptions(title, { tenantId: this.id(), title }),
+    );
+    const user = await firstValueFrom(ref.closed);
+    if (!user) return;
+    this.toasts.show('platform.users.created', { name: user.displayName });
+    this.userTable()?.reload();
+    this.tenant.update((t) => t && { ...t, userCount: t.userCount + 1 });
   }
 }

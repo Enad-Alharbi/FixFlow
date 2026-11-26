@@ -1,22 +1,12 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
-import {
-  IconCopy,
-  IconEye,
-  IconEyeOff,
-  IconWand,
-  TablerIconComponent,
-} from '@tabler/icons-angular';
 import { isValidEmail, isValidPassword, isValidUsername } from '../../../core/auth/account-rules';
 import { UserRole } from '../../../core/auth/auth.service';
-import { generatePassword } from '../../../core/auth/password-generator';
 import { coded, shownCode } from '../../../core/forms/coded';
 import { ApiErrors } from '../../../core/http/api-error';
-import { Button } from '../../../shared/ui/button/button';
 import { Field, FieldInput } from '../../../shared/ui/field/field';
-import { PasswordChecklist } from '../../../shared/ui/password-checklist/password-checklist';
-import { Toasts } from '../../../shared/ui/toast/toast';
+import { PasswordField } from '../password-field/password-field';
 
 export type TenantRole = Exclude<UserRole, 'PlatformAdmin'>;
 export const TENANT_ROLES: TenantRole[] = ['Requester', 'Technician', 'Supervisor'];
@@ -43,36 +33,21 @@ type UserField = keyof UserForm['controls'];
 
 /**
  * The fields of the shared Create User form, for the Control Panel (first Supervisor, any tenant's users) and,
- * in Phase 5, for Supervisors. The parent owns the form and the submit; this renders fields, the password
- * generator, and the live checklist.
+ * in Phase 5, for Supervisors. The parent owns the form and the submit; this renders the fields. Editing an
+ * existing user hides role and password (they have their own actions) and disables those controls.
  */
 @Component({
   selector: 'app-user-fields',
-  imports: [
-    ReactiveFormsModule,
-    TranslocoDirective,
-    TablerIconComponent,
-    Button,
-    Field,
-    FieldInput,
-    PasswordChecklist,
-  ],
+  imports: [ReactiveFormsModule, TranslocoDirective, Field, FieldInput, PasswordField],
   templateUrl: './user-fields.html',
   styles: `
     .fields {
       display: grid;
       gap: var(--space-5);
     }
-
-    .password-tools {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
   `,
 })
 export class UserFields {
-  private readonly toasts = inject(Toasts);
   private readonly apiErrors = inject(ApiErrors);
 
   readonly form = input.required<UserForm>();
@@ -81,15 +56,10 @@ export class UserFields {
   readonly submitted = input(false);
   /** The first Supervisor is always a Supervisor, so the tenant flow hides the role. */
   readonly showRole = input(true);
+  /** Off when editing an existing user: a password is set through its own action. */
+  readonly withPassword = input(true);
 
   protected readonly roles = TENANT_ROLES;
-  protected readonly showPassword = signal(false);
-  protected readonly icons = {
-    show: IconEye,
-    hide: IconEyeOff,
-    generate: IconWand,
-    copy: IconCopy,
-  };
 
   /** Translated error under a field, or null. `t` is the template's translate function. */
   protected error(field: UserField, t: (key: string) => string): string | null {
@@ -99,17 +69,5 @@ export class UserFields {
       this.serverCodes()[field],
     );
     return code ? t(this.apiErrors.codeKey(code)) : null;
-  }
-
-  /** Fills in a generated password and shows it, so the creator can read or copy it for the new user. */
-  protected generate(): void {
-    this.form().controls.password.setValue(generatePassword());
-    this.form().controls.password.markAsTouched();
-    this.showPassword.set(true);
-  }
-
-  protected async copy(): Promise<void> {
-    await navigator.clipboard.writeText(this.form().controls.password.value);
-    this.toasts.show('users.passwordCopied');
   }
 }

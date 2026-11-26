@@ -1,56 +1,26 @@
 import { Component, computed, input } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
-import {
-  IconArchive,
-  IconCircleCheck,
-  IconPlayerPause,
-  TablerIconComponent,
-} from '@tabler/icons-angular';
+import { IconArchive, IconCircleCheck, IconPlayerPause } from '@tabler/icons-angular';
+import { StateBadge, StateTone } from '../../../shared/ui/state-badge/state-badge';
 import { TenantStatus } from './tenants.api';
 
-const ICONS = { Active: IconCircleCheck, Suspended: IconPlayerPause, Archived: IconArchive };
+const LOOK = {
+  Active: { tone: 'ok', icon: IconCircleCheck },
+  Suspended: { tone: 'warn', icon: IconPlayerPause },
+  Archived: { tone: 'off', icon: IconArchive },
+} as const satisfies Record<TenantStatus, { tone: StateTone; icon: unknown }>;
 
-/** Tenant lifecycle status: colour + icon + label, never colour alone. */
+/** Tenant lifecycle status. */
 @Component({
   selector: 'app-tenant-status-badge',
-  imports: [TranslocoDirective, TablerIconComponent],
+  imports: [TranslocoDirective, StateBadge],
   template: `
-    <ng-container *transloco="let t">
-      <tabler-icon [icon]="icon()" aria-hidden="true" />{{ t('platform.tenantStatus.' + status()) }}
-    </ng-container>
+    <app-state-badge *transloco="let t" [tone]="look().tone" [icon]="look().icon">
+      {{ t('platform.tenantStatus.' + status()) }}
+    </app-state-badge>
   `,
-  styles: `
-    :host {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-1);
-      padding: var(--space-1) var(--space-2);
-      background: var(--badge-bg);
-      color: var(--badge-fg);
-      font-family: var(--font-display);
-      font-size: var(--fs-sm);
-      font-weight: var(--fw-bold);
-      white-space: nowrap;
-    }
-
-    :host([data-status='Active']) {
-      --badge-bg: var(--tenant-active-bg);
-      --badge-fg: var(--tenant-active-fg);
-    }
-
-    :host([data-status='Suspended']) {
-      --badge-bg: var(--tenant-suspended-bg);
-      --badge-fg: var(--tenant-suspended-fg);
-    }
-
-    :host([data-status='Archived']) {
-      --badge-bg: var(--tenant-archived-bg);
-      --badge-fg: var(--tenant-archived-fg);
-    }
-  `,
-  host: { '[attr.data-status]': 'status()' },
 })
 export class TenantStatusBadge {
   readonly status = input.required<TenantStatus>();
-  protected readonly icon = computed(() => ICONS[this.status()]);
+  protected readonly look = computed(() => LOOK[this.status()]);
 }

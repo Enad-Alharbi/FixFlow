@@ -1,0 +1,159 @@
+<ng-container *transloco="let t">
+  <a class="back-link" [routerLink]="['/platform/tenants', tenantId()]">
+    <tabler-icon class="icon-mirror" [icon]="icons.back" aria-hidden="true" />
+    <bdi>{{ tenant.value()?.name ?? t('titles.tenant') }}</bdi>
+  </a>
+
+  @if (user.error(); as loadError) {
+    <p class="alert" role="alert">
+      <tabler-icon [icon]="icons.alert" aria-hidden="true" />{{ t(apiErrors.key(loadError)) }}
+    </p>
+  } @else if (user.hasValue()) {
+    @let current = user.value();
+    <header class="page-header">
+      <div class="title">
+        <h1>
+          <bdi>{{ current.displayName }}</bdi>
+        </h1>
+        <bdi class="muted">{{ current.userName }}</bdi>
+        <span class="role">{{ t('roles.' + current.role) }}</span>
+        <app-account-state-badge [user]="current" />
+      </div>
+      <div class="actions">
+        @if (state() === 'deleted') {
+          <button
+            appButton
+            variant="primary"
+            type="button"
+            [loading]="busy() === 'restore'"
+            (click)="act('restore')"
+          >
+            {{ t('platform.users.actions.restore.button') }}
+          </button>
+        } @else {
+          <button appButton type="button" (click)="setPassword()">
+            {{ t('platform.users.setPassword') }}
+          </button>
+          @if (state() === 'locked') {
+            <button appButton type="button" [loading]="busy() === 'unlock'" (click)="act('unlock')">
+              {{ t('platform.users.actions.unlock.button') }}
+            </button>
+          }
+          @if (state() === 'deactivated') {
+            <button
+              appButton
+              type="button"
+              [loading]="busy() === 'reactivate'"
+              (click)="act('reactivate')"
+            >
+              {{ t('platform.users.actions.reactivate.button') }}
+            </button>
+          } @else {
+            <button
+              appButton
+              type="button"
+              [loading]="busy() === 'deactivate'"
+              (click)="act('deactivate')"
+            >
+              {{ t('platform.users.actions.deactivate.button') }}
+            </button>
+          }
+          <button appButton type="button" [loading]="busy() === 'delete'" (click)="act('delete')">
+            {{ t('platform.users.actions.delete.button') }}
+          </button>
+        }
+      </div>
+    </header>
+
+    @if (state() === 'deleted') {
+      <p class="status-note">{{ t('platform.users.deletedNote') }}</p>
+    }
+
+    <!-- Always present, so screen readers announce the message when it appears. -->
+    <div role="alert">
+      @if (alertKey(); as key) {
+        <p class="alert">
+          <tabler-icon [icon]="icons.alert" aria-hidden="true" /><span>{{ t(key) }}</span>
+        </p>
+      }
+    </div>
+
+    <div class="layout">
+      <div class="main">
+        <form
+          class="panel"
+          (submit)="saveProfile($event)"
+          novalidate
+          aria-labelledby="profile-title"
+        >
+          <h2 id="profile-title">{{ t('platform.users.profile') }}</h2>
+          <app-user-fields
+            [form]="form"
+            [serverCodes]="serverCodes()"
+            [submitted]="submitted()"
+            [showRole]="false"
+            [withPassword]="false"
+          />
+          @if (state() !== 'deleted') {
+            <div class="form-actions">
+              <button
+                appButton
+                variant="primary"
+                type="submit"
+                [disabled]="form.pristine"
+                [loading]="busy() === 'save'"
+              >
+                {{ t('platform.tenants.save') }}
+              </button>
+            </div>
+          }
+        </form>
+
+        <section class="panel" aria-labelledby="role-title">
+          <h2 id="role-title">{{ t('users.fields.role') }}</h2>
+          <div class="role-row">
+            <app-field [label]="t('users.fields.role')">
+              <select appInput [formControl]="role">
+                @for (r of roles; track r) {
+                  <option [value]="r">{{ t('roles.' + r) }}</option>
+                }
+              </select>
+            </app-field>
+            <button
+              appButton
+              type="button"
+              [disabled]="role.disabled || role.value === current.role"
+              [loading]="busy() === 'role'"
+              (click)="changeRole()"
+            >
+              {{ t('platform.users.changeRole') }}
+            </button>
+          </div>
+          <p class="muted">{{ t('platform.users.roleHint') }}</p>
+        </section>
+      </div>
+
+      <aside class="panel facts" aria-labelledby="facts-title">
+        <h2 id="facts-title">{{ t('platform.tenants.sections.facts') }}</h2>
+        <dl>
+          <dt>{{ t('platform.users.lastSignIn') }}</dt>
+          <dd>
+            {{
+              current.lastSignInAt ? (current.lastSignInAt | localDate) : t('platform.users.never')
+            }}
+          </dd>
+          @if (current.deletedAt) {
+            <dt>{{ t('platform.users.deletedAt') }}</dt>
+            <dd>{{ current.deletedAt | localDate }}</dd>
+          }
+          <dt>{{ t('platform.users.tenant') }}</dt>
+          <dd>
+            <bdi>{{ tenant.value()?.name }}</bdi>
+          </dd>
+        </dl>
+      </aside>
+    </div>
+  } @else {
+    <p class="muted">{{ t('common.loading') }}</p>
+  }
+</ng-container>

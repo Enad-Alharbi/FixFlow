@@ -84,6 +84,16 @@
         </dl>
       </aside>
     </div>
+
+    <section class="users" aria-labelledby="users-title">
+      <header class="page-header">
+        <h2 id="users-title">{{ t('platform.users.title') }}</h2>
+        <button appButton variant="primary" type="button" (click)="createUser()">
+          <tabler-icon [icon]="icons.add" aria-hidden="true" />{{ t('platform.users.new') }}
+        </button>
+      </header>
+      <app-user-table [tenantId]="current.id" />
+    </section>
   } @else {
     <p class="loading">{{ t('common.loading') }}</p>
   }

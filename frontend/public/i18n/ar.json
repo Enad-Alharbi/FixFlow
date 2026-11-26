@@ -17,7 +17,9 @@
   "nav": {
     "systemStatus": "حالة النظام",
     "styleGuide": "دليل التصميم",
-    "tenants": "الجهات"
+    "tenants": "الجهات",
+    "dashboard": "لوحة المتابعة",
+    "users": "المستخدمون"
   },
   "status": {
     "submitted": "مقدّم",
@@ -47,7 +49,11 @@
     "styleGuide": "دليل التصميم",
     "tenants": "الجهات",
     "newTenant": "جهة جديدة",
-    "tenant": "الجهة"
+    "tenant": "الجهة",
+    "dashboard": "لوحة المتابعة",
+    "users": "المستخدمون",
+    "deletedUsers": "المستخدمون المحذوفون",
+    "user": "المستخدم"
   },
   "passwordRules": {
     "length": "من {{min}} إلى {{max}} حرفًا",

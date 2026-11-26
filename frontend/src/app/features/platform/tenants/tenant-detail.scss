@@ -26,7 +26,7 @@
 .status-note {
   margin: 0;
   padding: var(--space-3) var(--space-4);
-  border-inline-start: var(--space-1) solid var(--tenant-suspended-bg);
+  border-inline-start: var(--space-1) solid var(--state-warn-bg);
   background: var(--color-surface);
 }
 
@@ -70,4 +70,10 @@
 
 .loading {
   color: var(--color-text-muted);
+}
+
+.users {
+  display: grid;
+  gap: var(--space-4);
+  margin-block-start: var(--space-5);
 }

@@ -68,7 +68,7 @@ export class Toasts {
       margin: 0;
       padding-block: var(--space-3);
       padding-inline: var(--space-4) var(--space-3);
-      border-inline-start: var(--space-1) solid var(--tenant-active-bg);
+      border-inline-start: var(--space-1) solid var(--state-ok-bg);
       border-radius: var(--radius-md);
       background: var(--color-text);
       color: var(--color-surface);

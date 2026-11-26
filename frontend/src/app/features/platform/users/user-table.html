@@ -1,0 +1,121 @@
+<ng-container *transloco="let t">
+  <div class="filters" role="search">
+    <app-field [label]="t('platform.users.search')">
+      <input appInput type="search" [formControl]="searchBox" autocomplete="off" dir="auto" />
+    </app-field>
+    <app-field [label]="t('users.fields.role')">
+      <select appInput (change)="setRole($any($event.target).value)">
+        <option value="" [selected]="!role()">{{ t('platform.users.allRoles') }}</option>
+        @for (r of roles; track r) {
+          <option [value]="r" [selected]="r === role()">{{ t('roles.' + r) }}</option>
+        }
+      </select>
+    </app-field>
+  </div>
+
+  @if (users.error(); as error) {
+    <p class="alert" role="alert">
+      {{ t(apiErrors.key(error)) }}
+      <button appButton type="button" (click)="reload()">{{ t('common.retry') }}</button>
+    </p>
+  } @else if (!users.isLoading() && users.value()?.totalCount === 0) {
+    <app-empty-state
+      [icon]="filtered() ? icons.search : deleted() ? icons.deleted : icons.users"
+      [message]="
+        t(
+          filtered()
+            ? 'platform.users.noMatches'
+            : deleted()
+              ? 'platform.users.noDeleted'
+              : 'platform.users.empty'
+        )
+      "
+    />
+  } @else {
+    <div class="table-scroll">
+      <table appTable [attr.aria-busy]="users.isLoading()">
+        <thead>
+          <tr>
+            <th appSortHeader="displayName" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('users.fields.displayName') }}
+            </th>
+            <th appSortHeader="userName" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('users.fields.userName') }}
+            </th>
+            @if (global()) {
+              <th appSortHeader="tenant" [sort]="sort()" (sortChange)="setSort($event)">
+                {{ t('platform.users.tenant') }}
+              </th>
+            }
+            <th appSortHeader="role" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('users.fields.role') }}
+            </th>
+            <th>{{ t('platform.users.state') }}</th>
+            @if (deleted()) {
+              <th>{{ t('platform.users.deletedAt') }}</th>
+            } @else {
+              <th appSortHeader="lastSignInAt" [sort]="sort()" (sortChange)="setSort($event)">
+                {{ t('platform.users.lastSignIn') }}
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @if (users.isLoading() && !users.hasValue()) {
+            @for (row of skeletonRows; track row) {
+              <tr>
+                @for (cell of skeletonCells(); track cell) {
+                  <td><span class="skeleton"></span></td>
+                }
+              </tr>
+            }
+          } @else {
+            @for (user of users.value()?.items; track user.id) {
+              <tr>
+                <td>
+                  <a
+                    class="row-link"
+                    [routerLink]="['/platform/tenants', user.tenantId, 'users', user.id]"
+                    ><bdi>{{ user.displayName }}</bdi></a
+                  >
+                </td>
+                <td>
+                  <bdi class="muted">{{ user.userName }}</bdi>
+                </td>
+                @if (global()) {
+                  <td>
+                    <a class="row-link" [routerLink]="['/platform/tenants', user.tenantId]"
+                      ><bdi>{{ user.tenantName }}</bdi></a
+                    >
+                  </td>
+                }
+                <td>{{ t('roles.' + user.role) }}</td>
+                <td><app-account-state-badge [user]="user" /></td>
+                <td class="muted">
+                  @if (deleted()) {
+                    {{ user.deletedAt | localDate }}
+                  } @else {
+                    {{
+                      user.lastSignInAt
+                        ? (user.lastSignInAt | localDate)
+                        : t('platform.users.never')
+                    }}
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (users.value(); as result) {
+      <app-pagination
+        [page]="result.page"
+        [pageSize]="result.pageSize"
+        [total]="result.totalCount"
+        (pageChange)="page.set($event)"
+      />
+    }
+  }
+</ng-container>

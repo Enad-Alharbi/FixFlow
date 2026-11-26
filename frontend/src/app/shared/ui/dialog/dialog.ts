@@ -21,6 +21,10 @@ import { Button } from '../button/button';
       display: grid;
       gap: var(--space-4);
       inline-size: min(32rem, calc(100vi - var(--space-7)));
+      max-block-size: calc(
+        100dvb - var(--space-7)
+      ); // a long form scrolls inside the dialog, not off-screen
+      overflow-y: auto;
       padding: var(--space-6);
       border-radius: var(--radius-lg);
       background: var(--color-surface);
@@ -29,10 +33,6 @@ import { Button } from '../button/button';
 
     .dialog-title {
       font-size: var(--fs-xl);
-    }
-
-    .dialog-body {
-      color: var(--color-text-muted);
     }
 
     .dialog-actions {
@@ -79,12 +79,18 @@ export interface ConfirmData {
   styles: `
     p {
       margin: 0;
+      color: var(--color-text-muted);
     }
   `,
 })
 export class ConfirmDialog {
   protected readonly data = inject<ConfirmData>(DIALOG_DATA);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
+}
+
+/** The options every FixFlow dialog opens with: its accessible name and the themed backdrop. */
+export function dialogOptions<D>(title: string, data: D) {
+  return { data, ariaLabel: title, backdropClass: 'app-dialog-backdrop' };
 }
 
 /** const ok = await confirm.ask({ title, message, confirm: 'Suspend', danger: true }); */
@@ -94,10 +100,8 @@ export class Confirm {
 
   async ask(data: ConfirmData): Promise<boolean> {
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
-      data,
+      ...dialogOptions(data.title, data),
       role: 'alertdialog',
-      ariaLabel: data.title, // the dialog's accessible name, read out when it opens
-      backdropClass: 'app-dialog-backdrop',
     });
     return (await firstValueFrom(ref.closed)) === true;
   }

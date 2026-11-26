@@ -38,13 +38,13 @@
   --status-cancelled-bg: #6b7280;
   --status-cancelled-fg: #fff;
 
-  // ---- Colour: tenant status (Control Panel) — same safety meanings as the request bands ----
-  --tenant-active-bg: #007a43;
-  --tenant-active-fg: #fff;
-  --tenant-suspended-bg: #ffc20e;
-  --tenant-suspended-fg: #1b2a4a;
-  --tenant-archived-bg: #6b7280;
-  --tenant-archived-fg: #fff;
+  // ---- Colour: states (tenant lifecycle, user accounts) — same safety meanings as the request bands ----
+  --state-ok-bg: #007a43;
+  --state-ok-fg: #fff;
+  --state-warn-bg: #ffc20e;
+  --state-warn-fg: #1b2a4a;
+  --state-off-bg: #6b7280;
+  --state-off-fg: #fff;
 
   // ---- Colour: overlays ----
   --color-backdrop: rgb(27 42 74 / 45%); // ink, dimmed: behind dialogs

@@ -1,0 +1,133 @@
+@use 'styles/breakpoints' as bp;
+
+:host {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.strips {
+  display: grid;
+  gap: var(--space-5);
+
+  @include bp.from(lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.total {
+  margin: 0;
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-heading);
+}
+
+.bar {
+  display: flex;
+  gap: var(--space-1);
+  block-size: var(--space-3);
+  background: var(--color-border-soft);
+}
+
+.bar span {
+  flex-basis: 0;
+}
+
+[data-tone='ok'] {
+  background: var(--state-ok-bg);
+}
+
+[data-tone='warn'] {
+  background: var(--state-warn-bg);
+}
+
+[data-tone='off'] {
+  background: var(--state-off-bg);
+}
+
+[data-tone='danger'] {
+  background: var(--color-danger);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legend a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  text-decoration: none;
+
+  &:hover span:last-child {
+    text-decoration: underline;
+  }
+}
+
+.swatch {
+  inline-size: var(--space-3);
+  block-size: var(--space-3);
+}
+
+.count {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A thin rule down the start edge with a tick per entry: the paper-trail look of the Work order.
+.timeline li {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  padding-inline-start: var(--space-5);
+  border-inline-start: var(--border-width) solid var(--color-border);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--space-1) * -1);
+    inset-block-start: var(--space-4);
+    inline-size: var(--space-2);
+    block-size: var(--space-2);
+    background: var(--color-text);
+  }
+}
+
+.when {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.what {
+  margin: 0;
+  font-weight: var(--fw-medium);
+
+  a {
+    color: var(--color-accent);
+  }
+}
+
+.who {
+  font-size: var(--fs-sm);
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}

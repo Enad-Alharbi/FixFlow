@@ -1,0 +1,92 @@
+<ng-container *transloco="let t">
+  <h1>{{ t('platform.dashboard.title') }}</h1>
+
+  @if (data.error(); as error) {
+    <p class="alert" role="alert">
+      {{ t(apiErrors.key(error)) }}
+      <button appButton type="button" (click)="data.reload()">{{ t('common.retry') }}</button>
+    </p>
+  } @else if (data.hasValue()) {
+    <div class="strips">
+      @for (
+        group of [
+          { id: 'tenants', segments: tenantSegments(), label: 'platform.tenantStatus.' },
+          { id: 'users', segments: userSegments(), label: 'platform.accountState.' },
+        ];
+        track group.id
+      ) {
+        <section class="panel strip" [attr.aria-labelledby]="'strip-' + group.id">
+          <h2 [id]="'strip-' + group.id">{{ t('platform.dashboard.' + group.id) }}</h2>
+          <p class="total">{{ total(group.segments) }}</p>
+          <!-- The bar is a picture of the legend below, which carries the same numbers as text. -->
+          <div class="bar" aria-hidden="true">
+            @for (s of group.segments; track s.key) {
+              @if (s.count > 0) {
+                <span [attr.data-tone]="s.tone" [style.flex-grow]="s.count"></span>
+              }
+            }
+          </div>
+          <ul class="legend">
+            @for (s of group.segments; track s.key) {
+              <li>
+                <a [routerLink]="s.link.path" [queryParams]="s.link.query">
+                  <span class="swatch" [attr.data-tone]="s.tone" aria-hidden="true"></span>
+                  <span class="count">{{ s.count }}</span>
+                  <span>{{ t(group.label + s.key) }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+
+    <section class="panel" aria-labelledby="activity-title">
+      <h2 id="activity-title">{{ t('platform.dashboard.recentActivity') }}</h2>
+      @if (data.value().recentActivity.length === 0) {
+        <p class="muted">{{ t('platform.dashboard.noActivity') }}</p>
+      } @else {
+        <ol class="timeline">
+          @for (entry of data.value().recentActivity; track entry.id) {
+            <li>
+              <time class="when" [attr.datetime]="entry.at">{{ entry.at | localDate }}</time>
+              <p class="what">
+                @if (actionKey(entry.action); as key) {
+                  {{ t(key) }}
+                } @else {
+                  <code dir="ltr">{{ entry.action }}</code>
+                }
+                @if (entry.targetName) {
+                  ·
+                  @if (entry.targetType === 'Tenant') {
+                    <a [routerLink]="['/platform/tenants', entry.targetId]"
+                      ><bdi>{{ entry.targetName }}</bdi></a
+                    >
+                  } @else if (entry.tenantId) {
+                    <a [routerLink]="['/platform/tenants', entry.tenantId, 'users', entry.targetId]"
+                      ><bdi>{{ entry.targetName }}</bdi></a
+                    >
+                  }
+                } @else {
+                  · <span class="muted">{{ t('platform.dashboard.removed') }}</span>
+                }
+              </p>
+              <p class="who muted">
+                {{
+                  t('platform.dashboard.by', {
+                    name: entry.actorName ?? t('platform.dashboard.removed'),
+                  })
+                }}
+                @if (entry.targetType === 'User' && entry.tenantName) {
+                  · <bdi>{{ entry.tenantName }}</bdi>
+                }
+              </p>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  } @else {
+    <p class="muted">{{ t('common.loading') }}</p>
+  }
+</ng-container>

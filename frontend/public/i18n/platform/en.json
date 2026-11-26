@@ -79,5 +79,98 @@
         "done": "{{name}} is unarchived and suspended."
       }
     }
+  },
+  "accountState": {
+    "active": "Active",
+    "locked": "Locked",
+    "lockedUntil": "Locked until {{time}}",
+    "deactivated": "Deactivated",
+    "deleted": "Deleted"
+  },
+  "users": {
+    "title": "Users",
+    "views": "User views",
+    "allUsers": "All users",
+    "deletedUsers": "Deleted users",
+    "deletedNote": "Deleted users can't sign in and are hidden from their organization. Their email and username stay reserved. Restore brings a user back as active.",
+    "search": "Search by name, username or email",
+    "allRoles": "All roles",
+    "tenant": "Organization",
+    "state": "Account",
+    "lastSignIn": "Last sign-in",
+    "deletedAt": "Deleted",
+    "never": "Never",
+    "empty": "No users yet.",
+    "noMatches": "No users match these filters.",
+    "noDeleted": "No deleted users.",
+    "new": "New user",
+    "newIn": "New user in {{tenant}}",
+    "create": "Create user",
+    "created": "{{name}} was created.",
+    "profile": "Profile",
+    "saved": "Changes saved.",
+    "changeRole": "Change role",
+    "roleHint": "A new role signs the user out of every session, so their next sign-in uses it. An organization always keeps at least one active supervisor.",
+    "roleConfirm": {
+      "title": "Make this user a {{role}}?",
+      "message": "They are signed out everywhere and sign in again with the new role."
+    },
+    "roleChanged": "Role changed.",
+    "setPassword": "Set new password",
+    "setPasswordFor": "New password for {{name}}",
+    "setPasswordNote": "For a forgotten password. The user is signed out everywhere and signs in with this password.",
+    "passwordSet": "New password set. Give it to the user now.",
+    "actions": {
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {{name}}?",
+        "message": "They are signed out right away and can't sign in until reactivated. They stay in the user list.",
+        "done": "{{name}} is deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "done": "{{name}} can sign in again."
+      },
+      "unlock": {
+        "button": "Unlock",
+        "done": "{{name}} is unlocked."
+      },
+      "delete": {
+        "button": "Delete",
+        "title": "Delete {{name}}?",
+        "message": "They are signed out and hidden from their organization. Their history stays. You can restore them from Deleted users.",
+        "done": "{{name}} was deleted."
+      },
+      "restore": {
+        "button": "Restore",
+        "done": "{{name}} is restored and active."
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "tenants": "Organizations",
+    "users": "Accounts",
+    "recentActivity": "Recent activity",
+    "noActivity": "Nothing has happened yet.",
+    "by": "By {{name}}",
+    "removed": "(removed)"
+  },
+  "activity": {
+    "tenant_created": "Organization created",
+    "tenant_updated": "Organization settings changed",
+    "tenant_suspended": "Organization suspended",
+    "tenant_reactivated": "Organization reactivated",
+    "tenant_archived": "Organization archived",
+    "tenant_unarchived": "Organization unarchived",
+    "user_created": "User created",
+    "user_updated": "User profile changed",
+    "user_role_changed": "User role changed",
+    "user_deactivated": "User deactivated",
+    "user_reactivated": "User reactivated",
+    "user_password_set": "New password set",
+    "user_unlocked": "User unlocked",
+    "user_deleted": "User deleted",
+    "user_restored": "User restored"
   }
 }

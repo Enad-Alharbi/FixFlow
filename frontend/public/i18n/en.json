@@ -17,7 +17,9 @@
   "nav": {
     "systemStatus": "System status",
     "styleGuide": "Style guide",
-    "tenants": "Tenants"
+    "tenants": "Tenants",
+    "dashboard": "Dashboard",
+    "users": "Users"
   },
   "status": {
     "submitted": "Submitted",
@@ -47,7 +49,11 @@
     "styleGuide": "Style guide",
     "tenants": "Tenants",
     "newTenant": "New tenant",
-    "tenant": "Tenant"
+    "tenant": "Tenant",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "deletedUsers": "Deleted users",
+    "user": "User"
   },
   "passwordRules": {
     "length": "{{min}}–{{max}} characters",

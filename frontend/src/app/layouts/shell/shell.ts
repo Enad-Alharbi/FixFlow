@@ -28,7 +28,9 @@ const NAV: Record<Plane, NavItem[]> = {
       : []),
   ],
   platform: [
+    { path: '/platform/dashboard', labelKey: 'nav.dashboard' },
     { path: '/platform/tenants', labelKey: 'nav.tenants' }, // also active on a tenant's own pages
+    { path: '/platform/users', labelKey: 'nav.users' },
     { path: '/platform/system', labelKey: 'nav.systemStatus' },
   ],
 };

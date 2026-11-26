@@ -13,6 +13,7 @@ import { Confirm } from '../../../shared/ui/dialog/dialog';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { Field, FieldInput } from '../../../shared/ui/field/field';
 import { Pagination } from '../../../shared/ui/pagination/pagination';
+import { StateBadge } from '../../../shared/ui/state-badge/state-badge';
 import { SortHeader, Table } from '../../../shared/ui/table/table';
 import { Toasts } from '../../../shared/ui/toast/toast';
 import { PasswordChecklist } from '../../../shared/ui/password-checklist/password-checklist';
@@ -38,6 +39,7 @@ import { RequestStatus, StatusBadge } from '../../../shared/ui/status-badge/stat
     Table,
     SortHeader,
     Pagination,
+    StateBadge,
   ],
   templateUrl: './style-guide.html',
   styleUrl: './style-guide.scss',
