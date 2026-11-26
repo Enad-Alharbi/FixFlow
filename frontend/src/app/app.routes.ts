@@ -47,7 +47,16 @@ export const routes: Routes = [
     canActivate: [planeGuard('platform')],
     loadComponent: shell,
     data: { plane: 'platform' },
-    children: [systemStatus],
+    children: [
+      { ...systemStatus, path: 'system' },
+      {
+        path: '',
+        // Control Panel strings (alias: platform), loaded once for every page below.
+        providers: [provideTranslocoScope('platform')],
+        loadChildren: () =>
+          import('./features/platform/platform.routes').then((m) => m.platformRoutes),
+      },
+    ],
   },
   // Tenant app: tenant users only.
   {

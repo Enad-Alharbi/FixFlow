@@ -16,7 +16,8 @@
   },
   "nav": {
     "systemStatus": "System status",
-    "styleGuide": "Style guide"
+    "styleGuide": "Style guide",
+    "tenants": "Tenants"
   },
   "status": {
     "submitted": "Submitted",
@@ -35,12 +36,18 @@
     "critical": "Critical"
   },
   "common": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "dismiss": "Dismiss"
   },
   "titles": {
     "signIn": "Sign in",
     "systemStatus": "System status",
-    "styleGuide": "Style guide"
+    "styleGuide": "Style guide",
+    "tenants": "Tenants",
+    "newTenant": "New tenant",
+    "tenant": "Tenant"
   },
   "passwordRules": {
     "length": "{{min}}–{{max}} characters",
@@ -63,10 +70,21 @@
     },
     "tenant": {
       "suspended": "Your organization's access is suspended. Contact your administrator.",
-      "archived": "Your organization's account is archived. Contact your administrator."
+      "archived": "Your organization's account is archived. Contact your administrator.",
+      "name_invalid": "Enter a name of 2–200 characters.",
+      "language_invalid": "Choose a language.",
+      "time_zone_invalid": "Choose a time zone.",
+      "contact_name_invalid": "Use at most 100 characters.",
+      "contact_email_invalid": "Enter a valid email address.",
+      "contact_phone_invalid": "Enter a valid phone number with 7–15 digits.",
+      "code_invalid": "Use 2–30 lowercase letters, numbers or -, starting with a letter.",
+      "code_taken": "This code is already in use.",
+      "invalid_transition": "This tenant's status changed in the meantime. Reload and try again.",
+      "status_invalid": "Choose Active or Suspended."
     },
     "validation": {
-      "failed": "Some fields are missing or invalid."
+      "failed": "Some fields are missing or invalid.",
+      "required": "This is required."
     },
     "http": {
       "too_many_requests": "Too many attempts. Wait a minute and try again."
@@ -75,6 +93,55 @@
       "error": "Something went wrong on our side. Please try again."
     },
     "network": "Can't reach FixFlow. Check your connection and try again.",
-    "unknown": "Something went wrong. Please try again."
+    "unknown": "Something went wrong. Please try again.",
+    "user": {
+      "password_too_weak": "The password doesn't meet all the rules below.",
+      "current_password_incorrect": "The current password is incorrect.",
+      "username_invalid": "Enter a username of 3–30 letters, numbers, . _ or -, starting with a letter.",
+      "username_taken": "This username is already in use.",
+      "email_invalid": "Enter a valid email address.",
+      "email_taken": "This email is already in use.",
+      "display_name_invalid": "Enter a name of 2–100 characters.",
+      "phone_invalid": "Enter a valid phone number with 7–15 digits.",
+      "role_invalid": "Choose a role.",
+      "last_supervisor": "This is the organization's only active supervisor. Make someone else a supervisor first.",
+      "deleted": "This user has been deleted.",
+      "not_deleted": "This user isn't deleted."
+    },
+    "concurrency": {
+      "conflict": "Someone else changed this in the meantime. Reload to see their version, then make your change again."
+    },
+    "resource": {
+      "not_found": "This item doesn't exist or was removed."
+    }
+  },
+  "pagination": {
+    "label": "Pages",
+    "range": "Showing {{from}}–{{to}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "roles": {
+    "PlatformAdmin": "Platform admin",
+    "Requester": "Requester",
+    "Technician": "Technician",
+    "Supervisor": "Supervisor"
+  },
+  "users": {
+    "fields": {
+      "displayName": "Display name",
+      "userName": "Username",
+      "userNameHint": "Used to sign in. Letters, numbers, . _ - and starts with a letter.",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "phoneHint": "With country code, e.g. +966 50 123 4567.",
+      "role": "Role",
+      "password": "Password",
+      "passwordHint": "Type one or generate it. Copy it now: it is not shown again after saving."
+    },
+    "showPassword": "Show password",
+    "generatePassword": "Generate password",
+    "copyPassword": "Copy",
+    "passwordCopied": "Password copied."
   }
 }

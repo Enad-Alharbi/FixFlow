@@ -1,0 +1,55 @@
+// Page-level patterns shared by every feature page (header row, panels, alerts, back links).
+// Components keep their own specific styles; only these repeated layout pieces live here.
+@use 'breakpoints' as bp;
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+// A bordered section on the paper background (tags and panels use a hairline, never a shadow).
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-surface);
+
+  @include bp.from(md) {
+    padding: var(--space-6);
+  }
+
+  > h2 {
+    font-size: var(--fs-xl);
+  }
+}
+
+// Icon + text, so the problem isn't signalled by colour alone.
+.alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: var(--space-1) solid var(--color-danger);
+  background: var(--color-surface);
+  color: var(--color-danger);
+  font-weight: var(--fw-medium);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: start;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

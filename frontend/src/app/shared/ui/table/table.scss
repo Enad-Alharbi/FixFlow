@@ -1,0 +1,80 @@
+// Unencapsulated (see table.ts): every rule is scoped under .data-table / .table-scroll.
+
+.table-scroll {
+  // stylelint-disable-next-line logical-css/require-logical-properties -- overflow-inline isn't in every browser yet
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.data-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-md);
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--border-width) solid var(--color-border-soft);
+  text-align: start;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.data-table th {
+  background: var(--color-page);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+}
+
+.data-table tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.data-table tbody tr:hover td {
+  background: var(--color-page);
+}
+
+// Numbers line up in columns.
+.data-table .numeric {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.data-table .sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.data-table th[aria-sort='ascending'],
+.data-table th[aria-sort='descending'] {
+  color: var(--color-text);
+}
+
+.data-table .skeleton {
+  display: block;
+  inline-size: 8ch;
+  block-size: 1em;
+  border-radius: var(--radius-sm);
+  background: var(--color-skeleton);
+  animation-name: skeleton-pulse;
+  animation-duration: calc(var(--dur-slow) * 4);
+  animation-timing-function: var(--ease-out);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes skeleton-pulse {
+  to {
+    opacity: 0.4;
+  }
+}

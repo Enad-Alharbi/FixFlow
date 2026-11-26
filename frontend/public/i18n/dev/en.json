@@ -13,7 +13,8 @@
   "variant": {
     "primary": "Start work",
     "secondary": "Add note",
-    "ghost": "Cancel"
+    "ghost": "Cancel",
+    "danger": "Archive"
   },
   "state": {
     "normal": "Normal",
@@ -27,5 +28,17 @@
   "fieldHint": "As written on the door.",
   "fieldError": "Enter a room number.",
   "passwordChecklist": "Password checklist",
-  "passwordSample": "Try a password"
+  "passwordSample": "Try a password",
+  "select": "Select",
+  "selectLabel": "Next step",
+  "overlays": "Dialog and toast",
+  "openDialog": "Open a confirmation",
+  "showToast": "Show a toast",
+  "dialogTitle": "Archive this request?",
+  "dialogMessage": "It moves out of the active list. Nothing is deleted.",
+  "toastMessage": "Request archived.",
+  "emptyState": "Empty state",
+  "emptyMessage": "No requests yet. Report the first issue.",
+  "table": "Data table and pagination",
+  "count": "Open requests"
 }

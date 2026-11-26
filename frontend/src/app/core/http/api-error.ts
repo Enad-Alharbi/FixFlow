@@ -11,11 +11,16 @@ export class ApiErrors {
   private readonly transloco = inject(TranslocoService);
 
   key(error: unknown): string {
-    const key = `errors.${apiErrorCode(error)}`;
+    return this.codeKey(apiErrorCode(error), 'errors.unknown');
+  }
+
+  /** The translation key for one error code, e.g. a field's "user.email_taken"; unknown codes get the fallback. */
+  codeKey(code: string, fallback = 'errors.validation.failed'): string {
+    const key = `errors.${code}`;
     // getTranslation(lang) is that language's flattened key map ("errors.auth.account_locked": "…").
     // (Without an argument it returns a Map of every language.) Both languages have the same keys (i18n check).
     const keys = this.transloco.getTranslation(this.transloco.getActiveLang());
-    return key in keys ? key : 'errors.unknown';
+    return key in keys ? key : fallback;
   }
 }
 

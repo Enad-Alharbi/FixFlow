@@ -1,0 +1,90 @@
+<ng-container *transloco="let t">
+  <a class="back-link" routerLink="..">
+    <tabler-icon class="icon-mirror" [icon]="icons.back" aria-hidden="true" />{{
+      t('platform.tenants.title')
+    }}
+  </a>
+
+  @if (tenant.error(); as loadError) {
+    <p class="alert" role="alert">
+      <tabler-icon [icon]="icons.alert" aria-hidden="true" />{{ t(apiErrors.key(loadError)) }}
+    </p>
+  } @else if (tenant.hasValue()) {
+    @let current = tenant.value();
+    <header class="page-header">
+      <div class="title">
+        <h1>
+          <bdi>{{ current.name }}</bdi>
+        </h1>
+        <bdi class="code">{{ current.code }}</bdi>
+        <app-tenant-status-badge [status]="current.status" />
+      </div>
+      <div class="status-actions">
+        @for (item of actions(); track actionKey(item)) {
+          <button appButton type="button" [loading]="busyAction() === item" (click)="run(item)">
+            {{ t('platform.tenants.actions.' + actionKey(item) + '.button') }}
+          </button>
+        }
+      </div>
+    </header>
+
+    @if (current.status !== 'Active') {
+      <p class="status-note">{{ t('platform.tenants.statusNote.' + current.status) }}</p>
+    }
+
+    <!-- Always present, so screen readers announce the message when it appears. -->
+    <div role="alert">
+      @if (alertKey(); as key) {
+        <p class="alert">
+          <tabler-icon [icon]="icons.alert" aria-hidden="true" />
+          <span>{{ t(key) }}</span>
+          @if (conflict()) {
+            <button appButton type="button" (click)="reload()">
+              {{ t('platform.tenants.reload') }}
+            </button>
+          }
+        </p>
+      }
+    </div>
+
+    <div class="layout">
+      <form class="panel" (submit)="save($event)" novalidate aria-labelledby="settings-title">
+        <h2 id="settings-title">{{ t('platform.tenants.sections.settings') }}</h2>
+        <app-tenant-settings-fields
+          [form]="form"
+          [serverCodes]="serverCodes()"
+          [submitted]="submitted()"
+        />
+        <div class="form-actions">
+          <button
+            appButton
+            variant="primary"
+            type="submit"
+            [disabled]="form.pristine"
+            [loading]="saving()"
+          >
+            {{ t('platform.tenants.save') }}
+          </button>
+        </div>
+      </form>
+
+      <aside class="panel facts" aria-labelledby="facts-title">
+        <h2 id="facts-title">{{ t('platform.tenants.sections.facts') }}</h2>
+        <dl>
+          <dt>{{ t('platform.tenants.columns.users') }}</dt>
+          <dd class="number">{{ current.userCount }}</dd>
+          <dt>{{ t('platform.tenants.columns.created') }}</dt>
+          <dd>{{ current.createdAt | localDate }}</dd>
+          <dt>{{ t('platform.tenants.lastChanged') }}</dt>
+          <dd>{{ current.updatedAt | localDate }}</dd>
+          <dt>{{ t('platform.tenants.fields.code') }}</dt>
+          <dd>
+            <bdi class="code">{{ current.code }}</bdi>
+          </dd>
+        </dl>
+      </aside>
+    </div>
+  } @else {
+    <p class="loading">{{ t('common.loading') }}</p>
+  }
+</ng-container>

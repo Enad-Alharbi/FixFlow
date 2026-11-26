@@ -19,7 +19,7 @@
             [routerLink]="item.path"
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
             >{{ t(item.labelKey) }}</a
           >
         }
@@ -42,4 +42,5 @@
   <main id="main" #main tabindex="-1">
     <router-outlet />
   </main>
+  <app-toaster />
 </ng-container>

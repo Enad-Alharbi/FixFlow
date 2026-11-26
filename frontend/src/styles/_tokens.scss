@@ -38,6 +38,18 @@
   --status-cancelled-bg: #6b7280;
   --status-cancelled-fg: #fff;
 
+  // ---- Colour: tenant status (Control Panel) — same safety meanings as the request bands ----
+  --tenant-active-bg: #007a43;
+  --tenant-active-fg: #fff;
+  --tenant-suspended-bg: #ffc20e;
+  --tenant-suspended-fg: #1b2a4a;
+  --tenant-archived-bg: #6b7280;
+  --tenant-archived-fg: #fff;
+
+  // ---- Colour: overlays ----
+  --color-backdrop: rgb(27 42 74 / 45%); // ink, dimmed: behind dialogs
+  --color-skeleton: #e3e7ec;
+
   // ---- Colour: priority markers ----
   --priority-low: #a0a8b3;
   --priority-medium: #f2c400;

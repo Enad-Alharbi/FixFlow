@@ -51,9 +51,13 @@ export class Field {
   protected readonly errorIcon = IconAlertCircle;
 }
 
-/** Marks the native control inside <app-field> and wires its id, aria-describedby and aria-invalid. */
+/**
+ * Marks the native control inside <app-field> (input, textarea, or select: a native <select> keeps the phone's own
+ * picker and full keyboard support, which a custom dropdown would have to rebuild).
+ * Wires its id, aria-describedby and aria-invalid.
+ */
 @Directive({
-  selector: 'input[appInput], textarea[appInput]',
+  selector: 'input[appInput], textarea[appInput], select[appInput]',
   host: {
     class: 'field-input',
     '[id]': 'field.controlId',

@@ -37,6 +37,7 @@ textarea {
 tabler-icon {
   display: inline-flex;
   flex-shrink: 0;
+  align-items: center; // the host can be taller than the svg (line box); keep the svg in its middle
 
   svg {
     inline-size: 1.25em;
@@ -74,4 +75,10 @@ tabler-icon {
     animation-iteration-count: 1 !important;
     transition-duration: var(--dur-instant) !important;
   }
+}
+
+// Angular CDK overlay (dialogs): positioning comes from the CDK's own stylesheet (styles.scss), the dimmed
+// backdrop from our tokens.
+.app-dialog-backdrop {
+  background: var(--color-backdrop);
 }

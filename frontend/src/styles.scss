@@ -2,3 +2,7 @@
 @use 'styles/fonts';
 @use 'styles/tokens';
 @use 'styles/base';
+@use 'styles/page';
+
+// Headless CDK overlay layout (where dialogs sit, the backdrop layer). No visual theme comes with it.
+@use '@angular/cdk/overlay-prebuilt.css';

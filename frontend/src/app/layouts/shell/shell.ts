@@ -4,12 +4,15 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { IconLogout, TablerIconComponent } from '@tabler/icons-angular';
 import { AuthService } from '../../core/auth/auth.service';
 import { LanguageSwitcher } from '../../core/i18n/language-switcher';
+import { Toaster } from '../../shared/ui/toast/toast';
 
 export type Plane = 'tenant' | 'platform';
 
 interface NavItem {
   path: string;
   labelKey: string;
+  /** Active only on exactly this URL (a home link would otherwise be active everywhere). */
+  exact?: boolean;
 }
 
 /**
@@ -18,13 +21,16 @@ interface NavItem {
  */
 const NAV: Record<Plane, NavItem[]> = {
   tenant: [
-    { path: '/', labelKey: 'nav.systemStatus' },
+    { path: '/', labelKey: 'nav.systemStatus', exact: true },
     // Development builds only (same switch as the route in app.routes.ts).
     ...(typeof ngDevMode === 'undefined' || ngDevMode
       ? [{ path: '/dev/style-guide', labelKey: 'nav.styleGuide' }]
       : []),
   ],
-  platform: [{ path: '/platform', labelKey: 'nav.systemStatus' }],
+  platform: [
+    { path: '/platform/tenants', labelKey: 'nav.tenants' }, // also active on a tenant's own pages
+    { path: '/platform/system', labelKey: 'nav.systemStatus' },
+  ],
 };
 
 /**
@@ -42,6 +48,7 @@ const NAV: Record<Plane, NavItem[]> = {
     TranslocoDirective,
     TablerIconComponent,
     LanguageSwitcher,
+    Toaster,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

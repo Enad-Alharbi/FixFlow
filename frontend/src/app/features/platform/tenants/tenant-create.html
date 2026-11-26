@@ -1,0 +1,59 @@
+<ng-container *transloco="let t">
+  <a class="back-link" routerLink="..">
+    <tabler-icon class="icon-mirror" [icon]="icons.back" aria-hidden="true" />{{
+      t('platform.tenants.title')
+    }}
+  </a>
+  <h1>{{ t('platform.tenants.newTitle') }}</h1>
+
+  <!-- (submit), not ngSubmit: the fields belong to three separate forms, so there is no one [formGroup] here. -->
+  <form (submit)="submit($event)" novalidate>
+    <section class="panel" aria-labelledby="tenant-section">
+      <h2 id="tenant-section">{{ t('platform.tenants.sections.organization') }}</h2>
+      <app-field
+        [label]="t('platform.tenants.fields.code')"
+        [hint]="t('platform.tenants.fields.codeHint')"
+        [error]="codeError(t)"
+      >
+        <input
+          appInput
+          [formControl]="code"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          dir="ltr"
+        />
+      </app-field>
+      <app-tenant-settings-fields
+        [form]="settings"
+        [serverCodes]="tenantCodes()"
+        [submitted]="submitted()"
+      />
+    </section>
+
+    <section class="panel" aria-labelledby="supervisor-section">
+      <h2 id="supervisor-section">{{ t('platform.tenants.sections.firstSupervisor') }}</h2>
+      <p class="section-hint">{{ t('platform.tenants.firstSupervisorHint') }}</p>
+      <app-user-fields
+        [form]="supervisor"
+        [serverCodes]="supervisorCodes()"
+        [submitted]="submitted()"
+        [showRole]="false"
+      />
+    </section>
+
+    <!-- Always present, so screen readers announce the message when it appears. -->
+    <div role="alert">
+      @if (alertKey(); as key) {
+        <p class="alert"><tabler-icon [icon]="icons.alert" aria-hidden="true" />{{ t(key) }}</p>
+      }
+    </div>
+
+    <div class="actions">
+      <a appButton routerLink="..">{{ t('common.cancel') }}</a>
+      <button appButton variant="primary" type="submit" [loading]="saving()">
+        {{ t('platform.tenants.create') }}
+      </button>
+    </div>
+  </form>
+</ng-container>

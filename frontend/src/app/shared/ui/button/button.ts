@@ -2,13 +2,13 @@ import { Component, booleanAttribute, input } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { IconLoader2, TablerIconComponent } from '@tabler/icons-angular';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 /**
  * FixFlow button. An attribute on the native element, so keyboard, form, and disabled behaviour stay native:
  *   <button appButton variant="primary" [loading]="saving()">Save changes</button>
  * Icons are projected before the label: <button appButton><tabler-icon [icon]="..." aria-hidden="true" /> Label</button>
- * One primary button per view; the rest are secondary or ghost.
+ * One primary button per view; the rest are secondary or ghost. Danger: destructive or disruptive actions.
  */
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector -- attribute selector keeps the native <button>/<a>

@@ -35,6 +35,14 @@
   --btn-border-hover: var(--color-accent-hover);
 }
 
+:host(.btn-danger) {
+  --btn-bg: var(--color-danger);
+  --btn-fg: var(--color-on-danger);
+  --btn-border: var(--color-danger);
+  --btn-bg-hover: var(--color-danger);
+  --btn-border-hover: var(--color-text);
+}
+
 :host(.btn-ghost) {
   --btn-bg: transparent;
   --btn-border: transparent;

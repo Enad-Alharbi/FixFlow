@@ -1,0 +1,30 @@
+@use 'styles/breakpoints' as bp;
+
+:host {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.filters {
+  display: grid;
+  gap: var(--space-4);
+
+  @include bp.from(md) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.row-link {
+  color: var(--color-accent);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.code {
+  color: var(--color-text-muted);
+  font-family: var(--font-numeric);
+}

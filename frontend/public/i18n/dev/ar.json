@@ -13,7 +13,8 @@
   "variant": {
     "primary": "بدء العمل",
     "secondary": "إضافة ملاحظة",
-    "ghost": "إلغاء"
+    "ghost": "إلغاء",
+    "danger": "أرشفة"
   },
   "state": {
     "normal": "عادي",
@@ -27,5 +28,17 @@
   "fieldHint": "كما هو مكتوب على الباب.",
   "fieldError": "أدخل رقم الغرفة.",
   "passwordChecklist": "قائمة شروط كلمة المرور",
-  "passwordSample": "جرّب كلمة مرور"
+  "passwordSample": "جرّب كلمة مرور",
+  "select": "قائمة اختيار",
+  "selectLabel": "الخطوة التالية",
+  "overlays": "نافذة الحوار والإشعار",
+  "openDialog": "فتح نافذة تأكيد",
+  "showToast": "عرض إشعار",
+  "dialogTitle": "أرشفة هذا الطلب؟",
+  "dialogMessage": "سينتقل من القائمة النشطة. لن يُحذف شيء.",
+  "toastMessage": "تمت أرشفة الطلب.",
+  "emptyState": "الحالة الفارغة",
+  "emptyMessage": "لا توجد طلبات بعد. أبلغ عن أول مشكلة.",
+  "table": "جدول البيانات والتصفح",
+  "count": "الطلبات المفتوحة"
 }

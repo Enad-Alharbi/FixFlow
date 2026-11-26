@@ -1,0 +1,83 @@
+{
+  "tenantStatus": {
+    "Active": "Active",
+    "Suspended": "Suspended",
+    "Archived": "Archived"
+  },
+  "tenants": {
+    "title": "Tenants",
+    "new": "New tenant",
+    "newTitle": "New tenant",
+    "search": "Search by name or code",
+    "statusFilter": "Status",
+    "statusOption": {
+      "default": "Active and suspended",
+      "Active": "Active",
+      "Suspended": "Suspended",
+      "Archived": "Archived",
+      "all": "All, including archived"
+    },
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "status": "Status",
+      "users": "Users",
+      "created": "Created"
+    },
+    "empty": "No tenants yet. Create the first organization.",
+    "noMatches": "No tenants match these filters.",
+    "sections": {
+      "organization": "Organization",
+      "firstSupervisor": "First supervisor",
+      "settings": "Settings",
+      "facts": "At a glance"
+    },
+    "firstSupervisorHint": "This person signs in first and sets up the organization's users, categories and locations.",
+    "fields": {
+      "code": "Code",
+      "codeHint": "A short ID such as riyadh-hospital. It can't be changed later.",
+      "name": "Name",
+      "defaultLanguage": "Default language",
+      "timeZone": "Time zone",
+      "contactName": "Contact name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone"
+    },
+    "create": "Create tenant",
+    "created": "{{name}} was created.",
+    "save": "Save changes",
+    "saved": "Changes saved.",
+    "reload": "Reload",
+    "lastChanged": "Last changed",
+    "statusNote": {
+      "Suspended": "Suspended: its users can't sign in, and anyone signed in was signed out. Data is kept.",
+      "Archived": "Archived: hidden from the normal list and no one can sign in. All data is kept."
+    },
+    "actions": {
+      "suspend": {
+        "button": "Suspend",
+        "title": "Suspend {{name}}?",
+        "message": "Its users are signed out right away and can't sign in until you reactivate it. No data is removed.",
+        "done": "{{name}} is suspended."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "done": "{{name}} is active again."
+      },
+      "archive": {
+        "button": "Archive",
+        "title": "Archive {{name}}?",
+        "message": "Its users are signed out and can't sign in, and it is hidden from the normal list. All data is kept and you can unarchive it later.",
+        "done": "{{name}} is archived."
+      },
+      "unarchiveActive": {
+        "button": "Unarchive as active",
+        "done": "{{name}} is active again."
+      },
+      "unarchiveSuspended": {
+        "button": "Unarchive as suspended",
+        "done": "{{name}} is unarchived and suspended."
+      }
+    }
+  }
+}

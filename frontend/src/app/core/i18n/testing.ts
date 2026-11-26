@@ -5,6 +5,8 @@ import authEn from '../../../../public/i18n/auth/en.json';
 import authAr from '../../../../public/i18n/auth/ar.json';
 import systemStatusEn from '../../../../public/i18n/system-status/en.json';
 import systemStatusAr from '../../../../public/i18n/system-status/ar.json';
+import platformEn from '../../../../public/i18n/platform/en.json';
+import platformAr from '../../../../public/i18n/platform/ar.json';
 import { FIXFLOW_TRANSLOCO_CONFIG } from './transloco.config';
 
 /** Test setup with the real translation files, so tests break when a string or key changes. */
@@ -18,11 +20,14 @@ export function provideTestTranslations() {
         'auth/ar': authAr,
         'system-status/en': systemStatusEn,
         'system-status/ar': systemStatusAr,
+        'platform/en': platformEn,
+        'platform/ar': platformAr,
       },
       translocoConfig: FIXFLOW_TRANSLOCO_CONFIG,
       preloadLangs: true,
     }).providers ?? [],
     provideTranslocoScope('system-status'),
     provideTranslocoScope('auth'),
+    provideTranslocoScope('platform'),
   ];
 }

@@ -1,0 +1,111 @@
+<ng-container *transloco="let t">
+  <header class="page-header">
+    <h1>{{ t('platform.tenants.title') }}</h1>
+    <a appButton variant="primary" routerLink="new">
+      <tabler-icon [icon]="icons.add" aria-hidden="true" />{{ t('platform.tenants.new') }}
+    </a>
+  </header>
+
+  <div class="filters" role="search">
+    <app-field [label]="t('platform.tenants.search')">
+      <input appInput type="search" [formControl]="searchBox" autocomplete="off" dir="auto" />
+    </app-field>
+    <app-field [label]="t('platform.tenants.statusFilter')">
+      <!-- [selected] per option: a [value] on the <select> is applied before the options exist. -->
+      <select appInput (change)="setStatus($any($event.target).value)">
+        @for (option of statusOptions; track option) {
+          <option [value]="option" [selected]="option === statusFilter()">
+            {{ t('platform.tenants.statusOption.' + (option || 'default')) }}
+          </option>
+        }
+      </select>
+    </app-field>
+  </div>
+
+  @if (tenants.error(); as error) {
+    <p class="alert" role="alert">
+      {{ t(apiErrors.key(error)) }}
+      <button appButton type="button" (click)="tenants.reload()">{{ t('common.retry') }}</button>
+    </p>
+  } @else if (!tenants.isLoading() && tenants.value()?.totalCount === 0) {
+    @if (filtered()) {
+      <app-empty-state [icon]="icons.search" [message]="t('platform.tenants.noMatches')" />
+    } @else {
+      <app-empty-state [icon]="icons.empty" [message]="t('platform.tenants.empty')">
+        <a appButton variant="primary" routerLink="new">{{ t('platform.tenants.new') }}</a>
+      </app-empty-state>
+    }
+  } @else {
+    <div class="table-scroll">
+      <table appTable [attr.aria-busy]="tenants.isLoading()">
+        <caption class="visually-hidden">
+          {{
+            t('platform.tenants.title')
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th appSortHeader="name" [sort]="sort() ?? 'name'" (sortChange)="setSort($event)">
+              {{ t('platform.tenants.columns.name') }}
+            </th>
+            <th appSortHeader="code" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('platform.tenants.columns.code') }}
+            </th>
+            <th appSortHeader="status" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('platform.tenants.columns.status') }}
+            </th>
+            <th
+              appSortHeader="userCount"
+              class="numeric"
+              [sort]="sort()"
+              (sortChange)="setSort($event)"
+            >
+              {{ t('platform.tenants.columns.users') }}
+            </th>
+            <th appSortHeader="createdAt" [sort]="sort()" (sortChange)="setSort($event)">
+              {{ t('platform.tenants.columns.created') }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (tenants.isLoading() && !tenants.hasValue()) {
+            @for (row of skeletonRows; track row) {
+              <tr>
+                <td><span class="skeleton"></span></td>
+                <td><span class="skeleton"></span></td>
+                <td><span class="skeleton"></span></td>
+                <td><span class="skeleton"></span></td>
+                <td><span class="skeleton"></span></td>
+              </tr>
+            }
+          } @else {
+            @for (tenant of tenants.value()?.items; track tenant.id) {
+              <tr>
+                <td>
+                  <a class="row-link" [routerLink]="tenant.id"
+                    ><bdi>{{ tenant.name }}</bdi></a
+                  >
+                </td>
+                <td>
+                  <bdi class="code">{{ tenant.code }}</bdi>
+                </td>
+                <td><app-tenant-status-badge [status]="tenant.status" /></td>
+                <td class="numeric">{{ tenant.userCount }}</td>
+                <td>{{ tenant.createdAt | localDate: 'date' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (tenants.value(); as result) {
+      <app-pagination
+        [page]="result.page"
+        [pageSize]="result.pageSize"
+        [total]="result.totalCount"
+        (pageChange)="setPage($event)"
+      />
+    }
+  }
+</ng-container>

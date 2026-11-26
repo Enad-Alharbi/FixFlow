@@ -1,0 +1,87 @@
+<div class="fields" *transloco="let t" [formGroup]="form()">
+  <app-field [label]="t('users.fields.displayName')" [error]="error('displayName', t)">
+    <!-- dir="auto": a display name may be Arabic or English. -->
+    <input appInput formControlName="displayName" autocomplete="off" dir="auto" />
+  </app-field>
+
+  <app-field
+    [label]="t('users.fields.userName')"
+    [hint]="t('users.fields.userNameHint')"
+    [error]="error('userName', t)"
+  >
+    <input
+      appInput
+      formControlName="userName"
+      autocomplete="off"
+      autocapitalize="none"
+      spellcheck="false"
+      dir="ltr"
+    />
+  </app-field>
+
+  <app-field [label]="t('users.fields.email')" [error]="error('email', t)">
+    <input appInput formControlName="email" type="email" autocomplete="off" dir="ltr" />
+  </app-field>
+
+  <app-field
+    [label]="t('users.fields.phone')"
+    [hint]="t('users.fields.phoneHint')"
+    [error]="error('phone', t)"
+  >
+    <input appInput formControlName="phone" type="tel" autocomplete="off" dir="ltr" />
+  </app-field>
+
+  @if (showRole()) {
+    <app-field [label]="t('users.fields.role')" [error]="error('role', t)">
+      <select appInput formControlName="role">
+        @for (role of roles; track role) {
+          <option [value]="role">{{ t('roles.' + role) }}</option>
+        }
+      </select>
+    </app-field>
+  }
+
+  <app-field
+    [label]="t('users.fields.password')"
+    [hint]="t('users.fields.passwordHint')"
+    [error]="error('password', t)"
+  >
+    <!-- autocomplete="new-password": the browser must not fill in the ADMIN's own saved password here. -->
+    <input
+      appInput
+      formControlName="password"
+      [type]="showPassword() ? 'text' : 'password'"
+      autocomplete="new-password"
+      spellcheck="false"
+      dir="ltr"
+    />
+    <button
+      fieldEnd
+      type="button"
+      appButton
+      variant="ghost"
+      [attr.aria-pressed]="showPassword()"
+      [attr.aria-label]="t('users.showPassword')"
+      (click)="showPassword.set(!showPassword())"
+    >
+      <tabler-icon [icon]="showPassword() ? icons.hide : icons.show" aria-hidden="true" />
+    </button>
+  </app-field>
+
+  <div class="password-tools">
+    <button appButton type="button" (click)="generate()">
+      <tabler-icon [icon]="icons.generate" aria-hidden="true" />{{ t('users.generatePassword') }}
+    </button>
+    <button
+      appButton
+      variant="ghost"
+      type="button"
+      [disabled]="!form().controls.password.value"
+      (click)="copy()"
+    >
+      <tabler-icon [icon]="icons.copy" aria-hidden="true" />{{ t('users.copyPassword') }}
+    </button>
+  </div>
+
+  <app-password-checklist [password]="form().controls.password.value" />
+</div>

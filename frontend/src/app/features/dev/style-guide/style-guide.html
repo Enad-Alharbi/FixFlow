@@ -90,6 +90,68 @@
     </div>
   </section>
 
+  <section aria-labelledby="sg-select">
+    <h2 id="sg-select">{{ t('select') }}</h2>
+    <div class="field-samples">
+      <app-field [label]="t('selectLabel')">
+        <select appInput>
+          <option>{{ t('variant.primary') }}</option>
+          <option>{{ t('variant.secondary') }}</option>
+        </select>
+      </app-field>
+    </div>
+  </section>
+
+  <section aria-labelledby="sg-overlays">
+    <h2 id="sg-overlays">{{ t('overlays') }}</h2>
+    <div class="row">
+      <button appButton type="button" (click)="openConfirm()">{{ t('openDialog') }}</button>
+      <button appButton type="button" (click)="showToast()">{{ t('showToast') }}</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="sg-empty">
+    <h2 id="sg-empty">{{ t('emptyState') }}</h2>
+    <app-empty-state [icon]="icons.tool" [message]="t('emptyMessage')">
+      <button appButton variant="primary" type="button">{{ t('variant.primary') }}</button>
+    </app-empty-state>
+  </section>
+
+  <section aria-labelledby="sg-table">
+    <h2 id="sg-table">{{ t('table') }}</h2>
+    <div class="table-scroll">
+      <table appTable>
+        <thead>
+          <tr>
+            <th appSortHeader="room" [sort]="tableSort()" (sortChange)="tableSort.set($event)">
+              {{ t('fieldLabel') }}
+            </th>
+            <th>{{ t('statuses') }}</th>
+            <th class="numeric">{{ t('count') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>204</td>
+            <td><app-status-badge status="inProgress" /></td>
+            <td class="numeric">12</td>
+          </tr>
+          <tr>
+            <td><span class="skeleton"></span></td>
+            <td><span class="skeleton"></span></td>
+            <td><span class="skeleton"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <app-pagination
+      [page]="samplePage()"
+      [pageSize]="20"
+      [total]="137"
+      (pageChange)="samplePage.set($event)"
+    />
+  </section>
+
   <section aria-labelledby="sg-password">
     <h2 id="sg-password">{{ t('passwordChecklist') }}</h2>
     <div class="field-samples">
