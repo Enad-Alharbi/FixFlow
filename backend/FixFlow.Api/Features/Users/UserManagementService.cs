@@ -3,6 +3,7 @@ using FixFlow.Api.Features.Auth;
 using FixFlow.Api.Features.Platform;
 using FixFlow.Api.Infrastructure.Data;
 using FixFlow.Api.Infrastructure.Http;
+using FixFlow.Api.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -10,9 +11,16 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 namespace FixFlow.Api.Features.Users;
 
 public class UserManagementService(
-    UserManager<ApplicationUser> users, FixFlowDbContext db, IPlatformAudit audit, IAccessStatus access, TimeProvider time)
+    UserManager<ApplicationUser> users, FixFlowDbContext db, IPlatformAudit audit, IAccessStatus access, TimeProvider time,
+    ITenantContext tenantContext)
     : IUserManagementService
 {
+    /// <summary>
+    /// A Supervisor (a caller with a tenant) never sees soft-deleted users: they are simply not found (CLAUDE.md §7.4).
+    /// Taken from the caller's token, not from a parameter, so no endpoint can forget it.
+    /// </summary>
+    private bool DeletedHidden => tenantContext.CurrentTenantId is not null;
+
     // EF's own SQL-Server-friendly sequential GUIDs, generated up front so the audit entry can name the new user.
     private static readonly SequentialGuidValueGenerator Ids = new();
 
@@ -22,7 +30,8 @@ public class UserManagementService(
             return ServiceError.NotFound();
 
         // Tenant users only; deleted users are their own view (CLAUDE.md §7.4), never mixed into the normal list.
-        var list = db.Users.AsNoTracking().Where(u => u.TenantId != null && u.IsDeleted == query.Deleted);
+        var deleted = query.Deleted && !DeletedHidden;
+        var list = db.Users.AsNoTracking().Where(u => u.TenantId != null && u.IsDeleted == deleted);
         if ((tenantId ?? query.TenantId) is { } id) // the route's tenant wins over the query string's
             list = list.Where(u => u.TenantId == id);
         if (query.Role is { Length: > 0 } roles)
@@ -124,6 +133,8 @@ public class UserManagementService(
             cancellationToken: cancellationToken,
             change: async user =>
             {
+                if (!active && user.Id == audit.ActorId)
+                    return ServiceError.Conflict("user.self");
                 if (!active && await LastSupervisorAsync(user, cancellationToken))
                     return ServiceError.Conflict("user.last_supervisor");
                 user.IsActive = active;
@@ -160,6 +171,8 @@ public class UserManagementService(
         ChangeAsync(tenantId, userId, "user.deleted", endSessions: true, cancellationToken: cancellationToken,
             change: async user =>
             {
+                if (user.Id == audit.ActorId)
+                    return ServiceError.Conflict("user.self");
                 if (await LastSupervisorAsync(user, cancellationToken))
                     return ServiceError.Conflict("user.last_supervisor");
                 user.IsDeleted = true;
@@ -181,41 +194,53 @@ public class UserManagementService(
 
     /// <summary>
     /// The shape every user action shares: find within the tenant, refuse on a deleted (or, for restore, a
-    /// non-deleted) user, apply the change, audit it in the same SaveChanges, and end the user's sessions if asked.
+    /// non-deleted) user, apply the change, audit it, and end the user's sessions if asked, all in one transaction.
     /// </summary>
     private async Task<Result<UserDetails>> ChangeAsync(
         Guid tenantId, Guid userId, string action, bool endSessions, Func<ApplicationUser, Task<ServiceError?>> change,
         CancellationToken cancellationToken, bool alwaysAudit = false, bool forDeletedUser = false)
     {
-        var user = await FindAsync(tenantId, userId, cancellationToken);
-        if (user is null) return ServiceError.NotFound();
-        if (user.IsDeleted != forDeletedUser)
-            return ServiceError.Conflict(user.IsDeleted ? "user.deleted" : "user.not_deleted");
+        // Inside the execution strategy, so a transient-error retry repeats the whole unit (see TenantService).
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<Result<UserDetails>>(async () =>
+        {
+            db.ChangeTracker.Clear(); // a retry starts from the database, not from a half-applied change
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
-        var before = Snapshot(user);
-        if (await change(user) is { } error) return error;
+            // Locks the tenant's row until commit, so two actions on one tenant's users take turns. Without it, two
+            // Supervisors demoting each other at the same instant could both pass the last-Supervisor check (D18).
+            await db.Database.ExecuteSqlAsync(
+                $"SELECT 1 FROM Tenants WITH (UPDLOCK, HOLDLOCK) WHERE Id = {tenantId}", cancellationToken);
 
-        var after = Snapshot(user);
-        if (!alwaysAudit && before.Equals(after)) return ToDetails(user); // already in that state: nothing to record
+            var user = await FindAsync(tenantId, userId, cancellationToken);
+            if (user is null) return ServiceError.NotFound();
+            if (user.IsDeleted != forDeletedUser)
+                return ServiceError.Conflict(user.IsDeleted ? "user.deleted" : "user.not_deleted");
 
-        audit.Record(action, "User", user.Id, tenantId, before, after);
-        await db.SaveChangesAsync(cancellationToken);
-        access.Forget(user.Id); // the per-request check (D17) sees the change on the user's next request
+            var before = Snapshot(user);
+            if (await change(user) is { } error) return error;
 
-        // Refresh is refused for inactive/deleted users anyway; revoking makes "signed out everywhere" explicit.
-        if (endSessions)
-            await db.RefreshTokens.Where(t => t.UserId == user.Id && t.RevokedAt == null)
-                .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, time.GetUtcNow()), cancellationToken);
+            var after = Snapshot(user);
+            if (!alwaysAudit && before.Equals(after)) return ToDetails(user); // already in that state: nothing to record
 
-        return ToDetails(user);
+            audit.Record(action, "User", user.Id, tenantId, before, after);
+            await db.SaveChangesAsync(cancellationToken);
+
+            // Refresh is refused for inactive/deleted users anyway; revoking makes "signed out everywhere" explicit.
+            if (endSessions)
+                await db.RefreshTokens.Where(t => t.UserId == user.Id && t.RevokedAt == null)
+                    .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, time.GetUtcNow()), cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            access.Forget(user.Id); // after commit: the per-request check (D17) must not re-cache the old state
+            return ToDetails(user);
+        });
     }
 
     /// <summary>
     /// True when this user is the tenant's only active Supervisor, so removing them would leave none (D18:
-    /// applies to everyone, including the Platform Admin).
+    /// applies to everyone, including the Platform Admin). Race-free because ChangeAsync holds the tenant lock.
     /// </summary>
-    // shortcut: two admins removing the last two Supervisors at the same moment could both pass; add a locking
-    // transaction if Supervisors (Phase 5) make concurrent user management common.
     private async Task<bool> LastSupervisorAsync(ApplicationUser user, CancellationToken cancellationToken) =>
         user is { Role: UserRole.Supervisor, IsActive: true, IsDeleted: false }
         && !await db.Users.AnyAsync(u => u.TenantId == user.TenantId && u.Id != user.Id
@@ -223,7 +248,8 @@ public class UserManagementService(
 
     // Users are outside the global tenant filter (ADR 0002), so the tenant condition is added here, every time.
     private Task<ApplicationUser?> FindAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
-        db.Users.SingleOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantId, cancellationToken);
+        db.Users.SingleOrDefaultAsync(
+            u => u.Id == userId && u.TenantId == tenantId && !(DeletedHidden && u.IsDeleted), cancellationToken);
 
     private static IQueryable<ApplicationUser> Sort(IQueryable<ApplicationUser> list, string? sort)
     {
