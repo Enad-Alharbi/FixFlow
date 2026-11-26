@@ -1,3 +1,4 @@
+using FixFlow.Api.Features.Platform;
 using FixFlow.Api.Features.Tenants;
 using FixFlow.Api.Features.Users;
 using FixFlow.Api.Infrastructure.Data;
@@ -13,6 +14,7 @@ public class AuthService(
     FixFlowDbContext db,
     TokenService tokens,
     TimeProvider time,
+    IPlatformAudit audit,
     ILogger<AuthService> logger) : IAuthService
 {
     private static string? _dummyHash;
@@ -111,6 +113,53 @@ public class AuthService(
         return user is null ? null : ToMe(user, user.Tenant);
     }
 
+    public async Task<Result<bool>> ChangePasswordAsync(
+        Guid userId, ChangePasswordRequest request, string? currentRefreshToken, CancellationToken cancellationToken)
+    {
+        var user = await users.FindByIdAsync(userId.ToString());
+        if (user is null) return SessionExpired();
+
+        // Form checks first: a typo in the new password must not cost the user a lockout attempt.
+        var errors = new FieldErrors();
+        if (string.IsNullOrEmpty(request.CurrentPassword))
+            errors.Add("currentPassword", "user.current_password_incorrect");
+        if (string.IsNullOrEmpty(request.NewPassword))
+            errors.Add("newPassword", "user.password_too_weak");
+        else if (request.NewPassword == request.CurrentPassword)
+            errors.Add("newPassword", "user.password_same");
+        if (request.ConfirmPassword != request.NewPassword)
+            errors.Add("confirmPassword", "user.password_mismatch");
+        if (errors.Any) return errors.ToError();
+
+        // The same check as sign-in, so a wrong current password counts toward the lockout (CLAUDE.md §7.4).
+        // D14: a lock blocks new sign-ins only; this session's access token stays valid.
+        var check = await signIn.CheckPasswordSignInAsync(user, request.CurrentPassword!, lockoutOnFailure: true);
+        if (check.IsLockedOut)
+            return new ServiceError(StatusCodes.Status409Conflict, "auth.account_locked",
+                Extensions: new Dictionary<string, object?> { ["lockoutEnd"] = await users.GetLockoutEndDateAsync(user) });
+        if (!check.Succeeded)
+            return new FieldErrors().Add("currentPassword", "user.current_password_incorrect").ToError();
+
+        // Added first so ChangePasswordAsync's own SaveChanges stores the audit entry with the new hash.
+        var entry = audit.Record("user.password_changed", "User", user.Id, user.TenantId);
+        var result = await users.ChangePasswordAsync(user, request.CurrentPassword!, request.NewPassword!);
+        if (!result.Succeeded)
+        {
+            db.Entry(entry).State = EntityState.Detached;
+            var rules = new FieldErrors();
+            foreach (var error in result.Errors) rules.Add("newPassword", error.Code);
+            return rules.ToError();
+        }
+
+        // Sign out every other session; this browser's session (the refresh cookie's family) stays signed in.
+        var hash = currentRefreshToken is null ? null : TokenService.Hash(currentRefreshToken);
+        var current = hash is null ? null : await db.RefreshTokens.Where(t => t.TokenHash == hash && t.UserId == user.Id)
+            .Select(t => (Guid?)t.FamilyId).SingleOrDefaultAsync(cancellationToken);
+        await db.RefreshTokens.Where(t => t.UserId == user.Id && t.RevokedAt == null && t.FamilyId != current)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, time.GetUtcNow()), cancellationToken);
+        return true;
+    }
+
     /// <summary>Why this account may not have a session right now, or null if it may.</summary>
     private static string? BlockReason(ApplicationUser user, Tenant? tenant) => (user, tenant) switch
     {
@@ -128,7 +177,7 @@ public class AuthService(
     }
 
     private static MeResponse ToMe(ApplicationUser user, Tenant? tenant) => new(
-        user.Id, user.UserName!, user.Email!, user.DisplayName, user.Role,
+        user.Id, user.UserName!, user.Email!, user.DisplayName, user.PhoneNumber, user.PreferredLanguage, user.Role,
         tenant is null ? null : new TenantSummary(tenant.Id, tenant.Name, tenant.Code, tenant.DefaultLanguage, tenant.TimeZone));
 
     private Task RevokeFamilyAsync(Guid familyId, DateTimeOffset now, CancellationToken cancellationToken) =>

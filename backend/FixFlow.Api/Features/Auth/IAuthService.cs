@@ -14,6 +14,13 @@ public interface IAuthService
     /// <summary>Revokes the session the refresh token belongs to. Unknown or missing tokens are ignored.</summary>
     Task SignOutAsync(string? refreshToken, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Changes the caller's own password: the current one must match (failures count toward lockout), and every
+    /// session except the one this refresh token belongs to is signed out.
+    /// </summary>
+    Task<Result<bool>> ChangePasswordAsync(
+        Guid userId, ChangePasswordRequest request, string? currentRefreshToken, CancellationToken cancellationToken);
+
     /// <summary>The user and tenant behind an access token, or null if the user no longer exists.</summary>
     Task<MeResponse?> GetMeAsync(Guid userId, CancellationToken cancellationToken);
 }

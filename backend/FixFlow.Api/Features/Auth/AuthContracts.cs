@@ -6,7 +6,11 @@ namespace FixFlow.Api.Features.Auth;
 
 public record SignInRequest(string? Login, string? Password);
 public record TenantSummary(Guid Id, string Name, string Code, string DefaultLanguage, string TimeZone);
-public record MeResponse(Guid Id, string UserName, string Email, string DisplayName, UserRole Role, TenantSummary? Tenant);
+public record MeResponse(
+    Guid Id, string UserName, string Email, string DisplayName, string? Phone, string? PreferredLanguage, UserRole Role,
+    TenantSummary? Tenant);
+/// <summary>Changing your own password (CLAUDE.md §7.4). Never returned or logged.</summary>
+public record ChangePasswordRequest(string? CurrentPassword, string? NewPassword, string? ConfirmPassword);
 /// <summary>Response body of sign-in and refresh. The refresh token is NOT here: it travels only in the HttpOnly cookie.</summary>
 public record SessionResponse(string AccessToken, DateTimeOffset ExpiresAt, MeResponse User);
 

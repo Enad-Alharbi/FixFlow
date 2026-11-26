@@ -23,6 +23,8 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedById { get; set; }
     public DateTimeOffset? LastSignInAt { get; set; }
+    /// <summary>"ar", "en", or null = use the tenant's default language (CLAUDE.md §13.1).</summary>
+    public string? PreferredLanguage { get; set; }
 }
 
 public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
@@ -32,6 +34,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         b.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
         b.Property(u => u.DisplayName).HasMaxLength(UserRules.DisplayNameMaxLength);
         b.Property(u => u.PhoneNumber).HasMaxLength(20);
+        b.Property(u => u.PreferredLanguage).HasMaxLength(2);
 
         // Identity's email index is not unique; email is unique across the whole platform.
         b.HasIndex(u => u.NormalizedEmail).IsUnique();

@@ -64,6 +64,7 @@ public static class ApiExtensions
         services.AddScoped<IPlatformAudit, PlatformAudit>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddMemoryCache();
         services.AddScoped<IAccessStatus, AccessStatus>();
         services.AddScoped<IPlatformDashboardService, PlatformDashboardService>();

@@ -230,6 +230,10 @@ namespace FixFlow.Api.Infrastructure.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)

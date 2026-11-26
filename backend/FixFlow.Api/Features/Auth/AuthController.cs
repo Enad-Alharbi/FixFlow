@@ -56,6 +56,19 @@ public class AuthController(IAuthService auth, IConfiguration configuration) : A
         return me is null ? ErrorResult(new ServiceError(StatusCodes.Status401Unauthorized, "auth.unauthenticated")) : Ok(me);
     }
 
+    /// <summary>
+    /// Here, not under /api/profile, because the refresh cookie is only sent to /api/auth: it tells the service which
+    /// session to keep signed in. Rate-limited like sign-in, since it checks a password.
+    /// </summary>
+    [HttpPost("password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(FixFlowClaims.UserId)?.Value, out var userId))
+            return ErrorResult(new ServiceError(StatusCodes.Status401Unauthorized, "auth.unauthenticated"));
+        var result = await auth.ChangePasswordAsync(userId, request, Request.Cookies[RefreshCookie], cancellationToken);
+        return result.IsSuccess ? NoContent() : ErrorResult(result.Error!);
+    }
+
     private IActionResult SessionOrProblem(Result<AuthSession> result)
     {
         if (result.Value is not { } session) return ErrorResult(result.Error!);
